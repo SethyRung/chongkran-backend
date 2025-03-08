@@ -1,0 +1,53 @@
+import { ApiProperty } from "@nestjs/swagger";
+import {
+  IsNotEmpty,
+  IsString,
+  IsBoolean,
+  IsDateString,
+  IsEnum,
+  IsEmail,
+} from "class-validator";
+
+export class SignupDto {
+  @ApiProperty({
+    required: true,
+  })
+  @IsNotEmpty()
+  @IsString()
+  firstName: string;
+
+  @ApiProperty({
+    required: true,
+  })
+  @IsNotEmpty()
+  @IsString()
+  lastName: string;
+
+  @ApiProperty({
+    required: true,
+  })
+  @IsNotEmpty()
+  @IsString()
+  gender: "M" | "F";
+
+  @ApiProperty({
+    required: true,
+  })
+  @IsNotEmpty()
+  @IsDateString()
+  dateOfBirth: Date;
+
+  @ApiProperty({
+    required: true,
+  })
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
+  @ApiProperty({
+    required: true,
+  })
+  @IsNotEmpty()
+  @IsString()
+  password: string;
+}
