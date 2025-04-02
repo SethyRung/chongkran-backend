@@ -13,7 +13,6 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
     const response = ctx.getResponse<Response>();
 
     if (exception instanceof HttpException) {
-      console.log(exception);
       response
         .status(exception.getStatus())
         .json(exception.message.replaceAll(/\n/g, " "));

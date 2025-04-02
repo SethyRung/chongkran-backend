@@ -20,11 +20,11 @@ export class AuthService {
 
   async signup(dto: SignupDto): Promise<undefined> {
     const hash = await bcrypt.hash(dto.password, 10);
-    await this.userModel.create({ ...dto, password: hash });
+    await this.userModel.create({ ...dto, password: hash, role: "user" });
   }
 
   async login(dto: LoginDto): Promise<AuthResponseDto> {
-    const user = await this.userModel.findOne({ email: dto.email }).exec();
+    const user = await this.userModel.findOne({ email: dto.email });
 
     if (!user) throw new ForbiddenException("Email or Password is invalid.");
 
@@ -33,7 +33,10 @@ export class AuthService {
       throw new ForbiddenException("Email or Password is invalid.");
 
     const tokens = await this.generateTokens(user.id, user.email);
-    await this.updateRtHash(user.id, tokens.refreshToken);
+    await this.userModel.updateOne(
+      { _id: user.id },
+      { $set: { refreshToken: tokens.refreshToken } }
+    );
 
     return tokens;
   }
@@ -41,28 +44,25 @@ export class AuthService {
   async logout(userId: string): Promise<undefined> {
     await this.userModel.updateOne(
       { _id: userId },
-      { $pop: { refreshToken: "" } }
+      { $set: { refreshToken: "" } }
     );
   }
 
   async refresh(userId: string, rt: string): Promise<AuthResponseDto> {
-    const user = await this.userModel
-      .findOne({ $and: [{ _id: userId }, { refreshToken: rt }] })
-      .exec();
-
+    const user = await this.userModel.findOne({
+      $and: [{ _id: userId }, { refreshToken: rt }],
+    });
     if (!user) throw new ForbiddenException("Access Denied");
 
     const tokens = await this.generateTokens(user.id, user.email);
-    await this.updateRtHash(user.id, tokens.refreshToken);
+    await this.userModel.updateOne(
+      { _id: user.id },
+      {
+        $set: { refreshToken: tokens.refreshToken },
+      }
+    );
 
     return tokens;
-  }
-
-  async updateRtHash(userId: string, rt: string): Promise<void> {
-    await this.userModel.updateOne(
-      { _id: userId },
-      { $push: { refreshToken: rt } }
-    );
   }
 
   async generateTokens(
