@@ -13,9 +13,15 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
     const response = ctx.getResponse<Response>();
 
     if (exception instanceof HttpException) {
-      response
-        .status(exception.getStatus())
-        .json(exception.message.replaceAll(/\n/g, " "));
+      const res = exception.getResponse() as
+        | string
+        | {
+            message: string[];
+            error: string;
+            statusCode: number;
+          };
+      const message = typeof res === "object" ? res.message.join(", ") : res;
+      response.status(exception.getStatus()).json(message);
     } else {
       response
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
