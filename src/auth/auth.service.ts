@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from "@nestjs/common";
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+} from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
@@ -19,6 +23,9 @@ export class AuthService {
   ) {}
 
   async signup(dto: SignupDto): Promise<undefined> {
+    const user = await this.userModel.findOne({ email: dto.email }).exec();
+    console.log(user);
+    if (!!user) throw new ConflictException("Email is alread exists");
     const hash = await bcrypt.hash(dto.password, 10);
     await this.userModel.create({ ...dto, password: hash, role: "user" });
   }

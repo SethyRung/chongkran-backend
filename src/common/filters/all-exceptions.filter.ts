@@ -5,7 +5,7 @@ import {
   HttpStatus,
 } from "@nestjs/common";
 import { BaseExceptionFilter } from "@nestjs/core";
-import { Response } from "express";
+import e, { Response } from "express";
 @Catch()
 export class AllExceptionsFilter extends BaseExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
@@ -20,7 +20,12 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
             error: string;
             statusCode: number;
           };
-      const message = typeof res === "object" ? res.message.join(", ") : res;
+      const message =
+        typeof res === "object"
+          ? Array.isArray(res.message)
+            ? res.message.join(", ")
+            : res.message
+          : res;
       response.status(exception.getStatus()).json(message);
     } else {
       response
