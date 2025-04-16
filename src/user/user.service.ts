@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { User, UserDocument } from "./schemas/user.schema";
@@ -8,6 +8,7 @@ import {
   AuthorRequesDocument,
   AuthorRequest,
 } from "./schemas/author_request.schema";
+import { UpdateUserDto } from "./dto/update_user.dto";
 
 @Injectable()
 export class UserService {
@@ -28,6 +29,17 @@ export class UserService {
     return plainToInstance(UserResponseDto, user, {
       excludeExtraneousValues: true,
     });
+  }
+
+  async updateById(id: string, updateUserDto: UpdateUserDto) {
+    const user = await this.userModel.findById(id).exec();
+    if (!user)
+      throw new HttpException(
+        "User not found. Please check the information and try again.",
+        HttpStatus.BAD_REQUEST
+      );
+    await this.userModel.updateOne({ _id: id }, { $set: updateUserDto }).exec();
+    return "User information updated successfully.";
   }
 
   async becomeAuthor(id: string): Promise<string> {
