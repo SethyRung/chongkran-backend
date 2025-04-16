@@ -30,8 +30,12 @@ export class User {
   @Prop({ required: true })
   dateOfBirth: Date;
 
+  @ApiProperty()
+  @Prop({ required: true, enum: ["user", "author", "admin"] })
+  role: "user" | "author" | "admin";
+
   @Prop()
-  refreshToken: string[];
+  refreshToken: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

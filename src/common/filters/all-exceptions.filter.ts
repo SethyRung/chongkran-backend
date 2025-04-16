@@ -5,7 +5,7 @@ import {
   HttpStatus,
 } from "@nestjs/common";
 import { BaseExceptionFilter } from "@nestjs/core";
-import { Response } from "express";
+import e, { Response } from "express";
 @Catch()
 export class AllExceptionsFilter extends BaseExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
@@ -13,10 +13,20 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
     const response = ctx.getResponse<Response>();
 
     if (exception instanceof HttpException) {
-      console.log(exception);
-      response
-        .status(exception.getStatus())
-        .json(exception.message.replaceAll(/\n/g, " "));
+      const res = exception.getResponse() as
+        | string
+        | {
+            message: string[];
+            error: string;
+            statusCode: number;
+          };
+      const message =
+        typeof res === "object"
+          ? Array.isArray(res.message)
+            ? res.message.join(", ")
+            : res.message
+          : res;
+      response.status(exception.getStatus()).json(message);
     } else {
       response
         .status(HttpStatus.INTERNAL_SERVER_ERROR)

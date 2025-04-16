@@ -6,6 +6,7 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { AuthModule } from "./auth/auth.module";
 import { APP_GUARD } from "@nestjs/core";
 import { AtGuard } from "./common/guards";
+import { RolesGuard } from "./common/guards/roles.guard";
 import { UserModule } from "./user/user.module";
 
 @Module({
@@ -27,6 +28,10 @@ import { UserModule } from "./user/user.module";
     {
       provide: APP_GUARD,
       useClass: AtGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
     },
   ],
 })
