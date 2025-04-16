@@ -16,8 +16,9 @@ import { AuthResponseDto } from "./dto/auth-response.dto";
 import { User } from "src/user/schemas/user.schema";
 import { SignupDto } from "./dto/signup.dto";
 import { LoginDto } from "./dto/login.dto";
+import { UserResponseDto } from "src/user/dto/user_response.dto";
 
-@ApiTags("auth")
+@ApiTags("Auth")
 @Controller("/api/auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -37,6 +38,15 @@ export class AuthController {
   @ApiOkResponse({ type: AuthResponseDto })
   async login(@Body() dto: LoginDto) {
     return await this.authService.login(dto);
+  }
+
+  @ApiBearerAuth()
+  @Get("/me")
+  @ApiOkResponse({ type: UserResponseDto })
+  async findCurrentUser(
+    @GetCurrentUserId() id: string
+  ): Promise<UserResponseDto> {
+    return await this.authService.findCurrentUser(id);
   }
 
   @ApiBearerAuth()
