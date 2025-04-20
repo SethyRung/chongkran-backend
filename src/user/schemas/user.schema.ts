@@ -34,6 +34,9 @@ export class User {
   @Prop({ required: true, enum: ["user", "author", "admin"] })
   role: "user" | "author" | "admin";
 
+  @Prop({ default: false })
+  isDeleted: boolean;
+
   @Prop()
   refreshToken: string;
 }

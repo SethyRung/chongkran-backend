@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
@@ -52,6 +53,14 @@ export class UserController {
         HttpStatus.FORBIDDEN
       );
     return await this.userService.updateById(id, updateUserDto);
+  }
+
+  @ApiBearerAuth()
+  @Delete("/:id")
+  @Roles(Role.Admin)
+  @ApiOkResponse({ type: String })
+  async deleteById(@Param("id") id: string): Promise<String> {
+    return await this.userService.deleteById(id);
   }
 
   @ApiBearerAuth()
