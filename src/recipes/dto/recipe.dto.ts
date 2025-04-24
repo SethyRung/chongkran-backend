@@ -14,6 +14,10 @@ import { IngredientDto } from "./ingredient.dto";
 
 export class RecipeDto {
   @ApiProperty()
+  @IsMongoId()
+  id: string;
+
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   title: string;
