@@ -18,7 +18,9 @@ export class UserService {
     private authorRequestModel: Model<AuthorRequesDocument>
   ) {}
   async findAll(): Promise<UserResponseDto[]> {
-    const users = await this.userModel.find();
+    const users = await this.userModel.find({
+      $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }],
+    });
     return plainToInstance(UserResponseDto, users, {
       excludeExtraneousValues: true,
     });
@@ -40,6 +42,19 @@ export class UserService {
       );
     await this.userModel.updateOne({ _id: id }, { $set: updateUserDto }).exec();
     return "User information updated successfully.";
+  }
+
+  async deleteById(id: string) {
+    const user = await this.userModel.findById(id).exec();
+    if (!user)
+      throw new HttpException(
+        "User not found. Please check the information and try again.",
+        HttpStatus.BAD_REQUEST
+      );
+    await this.userModel
+      .updateOne({ _id: id }, { $set: { isDeleted: true } })
+      .exec();
+    return "User deleted successfully.";
   }
 
   async becomeAuthor(id: string): Promise<string> {
