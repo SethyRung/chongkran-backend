@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -19,6 +20,8 @@ import { RecipeDto } from "./dto/recipe.dto";
 import { CreateRecipeDto } from "./dto/create_recipe.dto";
 import { Role } from "src/common/enums/role.enum";
 import { Roles } from "src/common/decorators/roles.decorator";
+import { GetCurrentUserId } from "src/common/decorators";
+import { UpdateRecipeDto } from "./dto/update_recipe.dto";
 
 @ApiTags("Recipes")
 @Controller("recipes")
@@ -57,5 +60,37 @@ export class RecipesController {
     @Query("status") status: RecipeDto["status"]
   ): Promise<RecipeDto> {
     return await this.recipesService.updateStatus(id, status);
+  }
+
+  @ApiBearerAuth()
+  @Patch("/:id")
+  async update(
+    @Param("id") id: string,
+    @GetCurrentUserId() userId,
+    @Body() updateRecipe: UpdateRecipeDto
+  ): Promise<RecipeDto> {
+    return await this.recipesService.update(userId, id, updateRecipe);
+  }
+
+  @ApiBearerAuth()
+  @Delete("/:id")
+  @ApiOkResponse({ type: String })
+  async delete(
+    @Param("id") id: string,
+    @GetCurrentUserId() userId: string
+  ): Promise<string> {
+    return await this.recipesService.delete(id, userId);
+  }
+
+  @ApiBearerAuth()
+  @Put("/:id/like")
+  async likeRecipe(@Param("id") id: string, @GetCurrentUserId() userid) {
+    return await this.recipesService.likeRecipe(id, userid);
+  }
+
+  @ApiBearerAuth()
+  @Put("/:id/view")
+  viewRecipe(@Param("id") id: string) {
+    return this.recipesService.incrementViews(id);
   }
 }

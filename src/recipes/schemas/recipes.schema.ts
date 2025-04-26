@@ -29,8 +29,8 @@ export class Recipes {
   @Prop({ required: true })
   cookTime: number;
 
-  @Prop({ default: 0 })
-  likes: number;
+  @Prop({ type: [{ type: Types.ObjectId, ref: "User" }], default: [] })
+  likes: Types.ObjectId[];
 
   @Prop({ default: 0 })
   views: number;
