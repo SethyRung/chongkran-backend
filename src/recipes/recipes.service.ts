@@ -21,7 +21,26 @@ export class RecipesService {
   ) {}
 
   async findAll(): Promise<RecipeDto[]> {
-    const recipes = await this.recipeModel.find();
+    const recipes = await this.recipeModel.find({ status: "approved" }).exec();
+
+    return recipes.map((recipe) => ({
+      ...recipe.toObject(),
+      id: recipe._id.toString(),
+      author: recipe.author.toString(),
+      likes: recipe.likes.length,
+      category: recipe.category.toString(),
+    }));
+  }
+
+  async findMy(
+    userId: string,
+    status: RecipeDto["status"] & "all"
+  ): Promise<RecipeDto[]> {
+    const filter = status && status !== "all" ? { status } : {};
+
+    const recipes = await this.recipeModel
+      .find({ author: userId, ...filter })
+      .exec();
 
     return recipes.map((recipe) => ({
       ...recipe.toObject(),
@@ -47,11 +66,36 @@ export class RecipesService {
     };
   }
 
-  async create(createRecipe: CreateRecipeDto): Promise<RecipeDto> {
+  async findPending(): Promise<RecipeDto[]> {
+    const recipes = await this.recipeModel.find({ status: "pending" }).exec();
+
+    return recipes.map((recipe) => ({
+      ...recipe.toObject(),
+      id: recipe._id.toString(),
+      author: recipe.author.toString(),
+      likes: recipe.likes.length,
+      category: recipe.category.toString(),
+    }));
+  }
+
+  async create(
+    userId: string,
+    createRecipe: CreateRecipeDto
+  ): Promise<RecipeDto> {
+    const user = await this.userModel.findById(userId).exec();
+    if (!user)
+      throw new HttpException("User not found.", HttpStatus.BAD_REQUEST);
+    else if (user.role === "user")
+      throw new HttpException(
+        "You are not authorized to create a recipe.",
+        HttpStatus.FORBIDDEN
+      );
+
     const currentDate = new Date().toISOString();
 
     const created = await this.recipeModel.create({
       ...createRecipe,
+      author: user.id,
       createdAt: currentDate,
       updatedAt: currentDate,
     });
@@ -120,7 +164,7 @@ export class RecipesService {
 
   async delete(id: string, userId: string): Promise<string> {
     const recipe = await this.recipeModel.findById(id).exec();
-    if (!recipe) throw new NotFoundException("Recipe not found");
+    if (!recipe) throw new NotFoundException("Recipe not found.");
 
     const user = await this.userModel.findById(userId).exec();
     if (recipe.author.toString() !== userId && user?.role !== "admin")
@@ -132,7 +176,7 @@ export class RecipesService {
 
   async likeRecipe(id: string, userId: string) {
     const recipe = await this.recipeModel.findById(id);
-    if (!recipe) throw new NotFoundException("Recipe not found");
+    if (!recipe) throw new NotFoundException("Recipe not found.");
 
     const userObjectId = new Types.ObjectId(userId);
 

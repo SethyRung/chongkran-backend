@@ -36,6 +36,29 @@ export class RecipesController {
   }
 
   @ApiBearerAuth()
+  @Get("/my")
+  @ApiOkResponse({ type: RecipeDto, isArray: true })
+  @ApiQuery({
+    name: "status",
+    enum: ["all", "pending", "approved", "rejected"],
+    default: "all",
+  })
+  async findMy(
+    @GetCurrentUserId() userId: string,
+    @Query("status") status: RecipeDto["status"] & "all"
+  ): Promise<RecipeDto[]> {
+    return this.recipesService.findMy(userId, status);
+  }
+
+  @ApiBearerAuth()
+  @Get("/pending")
+  @Roles(Role.Admin)
+  @ApiOkResponse({ type: RecipeDto, isArray: true })
+  async findPending(): Promise<RecipeDto[]> {
+    return this.recipesService.findPending();
+  }
+
+  @ApiBearerAuth()
   @Get("/:id")
   @ApiOkResponse({ type: RecipeDto })
   async findById(@Param("id") id: string): Promise<RecipeDto> {
@@ -45,8 +68,11 @@ export class RecipesController {
   @ApiBearerAuth()
   @Post()
   @ApiOkResponse({ type: RecipeDto })
-  async create(@Body() createRecipe: CreateRecipeDto): Promise<RecipeDto> {
-    return await this.recipesService.create(createRecipe);
+  async create(
+    @GetCurrentUserId() userId: string,
+    @Body() createRecipe: CreateRecipeDto
+  ): Promise<RecipeDto> {
+    return await this.recipesService.create(userId, createRecipe);
   }
 
   @ApiBearerAuth()

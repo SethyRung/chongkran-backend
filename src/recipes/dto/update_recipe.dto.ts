@@ -4,6 +4,7 @@ import { RecipeDto } from "./recipe.dto";
 export class UpdateRecipeDto extends PartialType(
   OmitType(RecipeDto, [
     "id",
+    "author",
     "likes",
     "views",
     "status",
