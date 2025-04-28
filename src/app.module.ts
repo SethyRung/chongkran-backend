@@ -9,6 +9,7 @@ import { AtGuard } from "./common/guards";
 import { RolesGuard } from "./common/guards/roles.guard";
 import { UserModule } from "./user/user.module";
 import { RecipesModule } from './recipes/recipes.module';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { RecipesModule } from './recipes/recipes.module';
     AuthModule,
     UserModule,
     RecipesModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [

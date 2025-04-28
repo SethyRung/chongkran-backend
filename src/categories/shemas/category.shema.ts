@@ -11,6 +11,9 @@ export class Category {
   @Prop()
   description: string;
 
+  @Prop({ default: false })
+  isDeleted: boolean;
+
   @Prop({ required: true })
   createdAt: Date;
 
