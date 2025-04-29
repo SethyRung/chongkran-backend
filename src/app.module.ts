@@ -8,8 +8,8 @@ import { APP_GUARD } from "@nestjs/core";
 import { AtGuard } from "./common/guards";
 import { RolesGuard } from "./common/guards/roles.guard";
 import { UserModule } from "./user/user.module";
-import { RecipesModule } from './recipes/recipes.module';
-import { CategoriesModule } from './categories/categories.module';
+import { RecipesModule } from "./recipes/recipes.module";
+import { CategoriesModule } from "./categories/categories.module";
 
 @Module({
   imports: [

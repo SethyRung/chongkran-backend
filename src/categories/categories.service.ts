@@ -8,7 +8,7 @@ import { CreateCategoryDto } from "./dto/create-category.dto";
 import { UpdateCategoryDto } from "./dto/update-category.dto";
 import { CategoryDto } from "./dto/category.dto";
 import { InjectModel } from "@nestjs/mongoose";
-import { Category, CategoryDocument } from "./shemas/category.shema";
+import { Category, CategoryDocument } from "./schemas/category.schema";
 import { Model } from "mongoose";
 
 @Injectable()

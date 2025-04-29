@@ -8,7 +8,7 @@ import {
 import { RecipeDto } from "./dto/recipe.dto";
 import { CreateRecipeDto } from "./dto/create_recipe.dto";
 import { InjectModel } from "@nestjs/mongoose";
-import { Recipes, RecipesDocument } from "./schemas/recipes.schema";
+import { Recipe, RecipeDocument } from "./schemas/recipe.schema";
 import { Model, Types } from "mongoose";
 import { User, UserDocument } from "src/user/schemas/user.schema";
 import { UpdateRecipeDto } from "./dto/update_recipe.dto";
@@ -16,7 +16,7 @@ import { UpdateRecipeDto } from "./dto/update_recipe.dto";
 @Injectable()
 export class RecipesService {
   constructor(
-    @InjectModel(Recipes.name) private recipeModel: Model<RecipesDocument>,
+    @InjectModel(Recipe.name) private recipeModel: Model<RecipeDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>
   ) {}
 
