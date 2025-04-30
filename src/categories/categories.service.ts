@@ -52,7 +52,7 @@ export class CategoriesService {
       .findOne({ _id: id, isDeleted: false })
       .exec();
 
-    if (!category) throw new NotFoundException("Recipe not found.");
+    if (!category) throw new NotFoundException("Category not found.");
 
     return {
       id: category.id,
