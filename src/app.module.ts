@@ -11,6 +11,7 @@ import { UserModule } from "./user/user.module";
 import { RecipesModule } from "./recipes/recipes.module";
 import { CategoriesModule } from "./categories/categories.module";
 import { ReviewsModule } from "./reviews/reviews.module";
+import { FavoritesModule } from './favorites/favorites.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ReviewsModule } from "./reviews/reviews.module";
     RecipesModule,
     CategoriesModule,
     ReviewsModule,
+    FavoritesModule,
   ],
   controllers: [AppController],
   providers: [
