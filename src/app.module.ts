@@ -12,6 +12,7 @@ import { RecipesModule } from "./recipes/recipes.module";
 import { CategoriesModule } from "./categories/categories.module";
 import { ReviewsModule } from "./reviews/reviews.module";
 import { FavoritesModule } from './favorites/favorites.module';
+import { MealPlansModule } from './meal-plans/meal-plans.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { FavoritesModule } from './favorites/favorites.module';
     CategoriesModule,
     ReviewsModule,
     FavoritesModule,
+    MealPlansModule,
   ],
   controllers: [AppController],
   providers: [
