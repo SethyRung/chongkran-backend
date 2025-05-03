@@ -82,8 +82,7 @@ export class MealPlansService {
       .exec();
     if (!mealPlan) throw new NotFoundException("Plan not found");
 
-    const currentDate = new Date().toISOString();
-    Object.assign(mealPlan, { ...updateMealPlanDto, updateAt: currentDate });
+    Object.assign(mealPlan, { ...updateMealPlanDto });
     const updated = await mealPlan.save();
     return {
       id: updated.id,
