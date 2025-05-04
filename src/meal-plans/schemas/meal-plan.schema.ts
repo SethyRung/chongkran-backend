@@ -3,7 +3,7 @@ import { Document, Types } from "mongoose";
 
 export type MealPlanDocument = MealPlan & Document;
 
-@Schema({ timestamps: true })
+@Schema({ collection: "meal-plan", timestamps: true })
 export class MealPlan {
   @Prop({ type: Types.ObjectId, ref: "User", required: true })
   userId: Types.ObjectId;

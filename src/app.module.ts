@@ -13,6 +13,7 @@ import { CategoriesModule } from "./categories/categories.module";
 import { ReviewsModule } from "./reviews/reviews.module";
 import { FavoritesModule } from './favorites/favorites.module';
 import { MealPlansModule } from './meal-plans/meal-plans.module';
+import { ShoppingListsModule } from './shopping-lists/shopping-lists.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { MealPlansModule } from './meal-plans/meal-plans.module';
     ReviewsModule,
     FavoritesModule,
     MealPlansModule,
+    ShoppingListsModule,
   ],
   controllers: [AppController],
   providers: [
