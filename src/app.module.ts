@@ -11,9 +11,10 @@ import { UserModule } from "./user/user.module";
 import { RecipesModule } from "./recipes/recipes.module";
 import { CategoriesModule } from "./categories/categories.module";
 import { ReviewsModule } from "./reviews/reviews.module";
-import { FavoritesModule } from './favorites/favorites.module';
-import { MealPlansModule } from './meal-plans/meal-plans.module';
-import { ShoppingListsModule } from './shopping-lists/shopping-lists.module';
+import { FavoritesModule } from "./favorites/favorites.module";
+import { MealPlansModule } from "./meal-plans/meal-plans.module";
+import { ShoppingListsModule } from "./shopping-lists/shopping-lists.module";
+import { UploadModule } from "./upload/upload.module";
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { ShoppingListsModule } from './shopping-lists/shopping-lists.module';
     FavoritesModule,
     MealPlansModule,
     ShoppingListsModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [
