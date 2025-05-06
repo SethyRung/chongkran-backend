@@ -14,6 +14,7 @@ import { ApiBearerAuth, ApiOkResponse, ApiTags } from "@nestjs/swagger";
 import { Roles } from "src/common/decorators/roles.decorator";
 import { Role } from "src/common/enums/role.enum";
 import { CategoryDto } from "./dto/category.dto";
+import { Public } from "src/common/decorators";
 
 @ApiTags("Categories")
 @Controller("categories")
@@ -30,14 +31,14 @@ export class CategoriesController {
     return await this.categoriesService.create(createCategoryDto);
   }
 
-  @ApiBearerAuth()
+  @Public()
   @Get()
   @ApiOkResponse({ type: CategoryDto, isArray: true })
   async findAll(): Promise<CategoryDto[]> {
     return await this.categoriesService.findAll();
   }
 
-  @ApiBearerAuth()
+  @Public()
   @Get(":id")
   @ApiOkResponse({ type: CategoryDto })
   findById(@Param("id") id: string) {
