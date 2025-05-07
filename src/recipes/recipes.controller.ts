@@ -20,7 +20,7 @@ import { RecipeDto } from "./dto/recipe.dto";
 import { CreateRecipeDto } from "./dto/create_recipe.dto";
 import { Role } from "src/common/enums/role.enum";
 import { Roles } from "src/common/decorators/roles.decorator";
-import { GetCurrentUserId } from "src/common/decorators";
+import { GetCurrentUserId, Public } from "src/common/decorators";
 import { UpdateRecipeDto } from "./dto/update_recipe.dto";
 
 @ApiTags("Recipes")
@@ -28,7 +28,7 @@ import { UpdateRecipeDto } from "./dto/update_recipe.dto";
 export class RecipesController {
   constructor(private readonly recipesService: RecipesService) {}
 
-  @ApiBearerAuth()
+  @Public()
   @Get()
   @ApiOkResponse({ type: RecipeDto, isArray: true })
   async findAll(): Promise<RecipeDto[]> {
@@ -58,7 +58,7 @@ export class RecipesController {
     return this.recipesService.findPending();
   }
 
-  @ApiBearerAuth()
+  @Public()
   @Get("/:id")
   @ApiOkResponse({ type: RecipeDto })
   async findById(@Param("id") id: string): Promise<RecipeDto> {
@@ -114,7 +114,6 @@ export class RecipesController {
     return await this.recipesService.likeRecipe(id, userid);
   }
 
-  @ApiBearerAuth()
   @Put("/:id/view")
   viewRecipe(@Param("id") id: string) {
     return this.recipesService.incrementViews(id);
