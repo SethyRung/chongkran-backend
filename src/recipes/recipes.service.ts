@@ -62,21 +62,48 @@ export class RecipesService {
 
   async findMy(
     userId: string,
-    status: RecipeDto["status"] & "all"
-  ): Promise<RecipeDto[]> {
+    status: RecipeDto["status"] & "all",
+    paginationQuery: PaginationQueryDto
+  ): Promise<PaginatedResponseDto<RecipeDto>> {
     const filter = status && status !== "all" ? { status } : {};
 
-    const recipes = await this.recipeModel
-      .find({ author: userId, ...filter })
-      .exec();
+    const { page = 1, limit = 10 } = paginationQuery;
+    const skip = (page - 1) * limit;
 
-    return recipes.map((recipe) => ({
-      ...recipe.toObject(),
-      id: recipe._id.toString(),
+    const [recipes, total] = await Promise.all([
+      this.recipeModel
+        .find({ author: userId, ...filter })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.recipeModel.countDocuments({ author: userId, ...filter }).exec(),
+    ]);
+
+    const data: RecipeDto[] = recipes.map((recipe) => ({
+      id: recipe.id,
+      title: recipe.title,
+      description: recipe.description,
+      ingredients: recipe.ingredients,
+      steps: recipe.steps,
       author: recipe.author.toString(),
+      tags: recipe.tags,
+      image: recipe.image,
+      cookTime: recipe.cookTime,
       likes: recipe.likes.length,
+      views: recipe.views,
+      difficulty: recipe.difficulty,
+      status: recipe.status,
       category: recipe.category.toString(),
+      createdAt: recipe.createdAt,
+      updatedAt: recipe.updatedAt,
     }));
+
+    return {
+      data,
+      total,
+      page,
+      lastPage: Math.ceil(total / limit),
+    };
   }
 
   async findById(id: string): Promise<RecipeDto> {
@@ -94,16 +121,46 @@ export class RecipesService {
     };
   }
 
-  async findPending(): Promise<RecipeDto[]> {
-    const recipes = await this.recipeModel.find({ status: "pending" }).exec();
+  async findPending(
+    paginationQuery: PaginationQueryDto
+  ): Promise<PaginatedResponseDto<RecipeDto>> {
+    const { page = 1, limit = 10 } = paginationQuery;
+    const skip = (page - 1) * limit;
 
-    return recipes.map((recipe) => ({
-      ...recipe.toObject(),
-      id: recipe._id.toString(),
+    const [recipes, total] = await Promise.all([
+      this.recipeModel
+        .find({ status: "pending" })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.recipeModel.countDocuments({ status: "pending" }).exec(),
+    ]);
+
+    const data: RecipeDto[] = recipes.map((recipe) => ({
+      id: recipe.id,
+      title: recipe.title,
+      description: recipe.description,
+      ingredients: recipe.ingredients,
+      steps: recipe.steps,
       author: recipe.author.toString(),
+      tags: recipe.tags,
+      image: recipe.image,
+      cookTime: recipe.cookTime,
       likes: recipe.likes.length,
+      views: recipe.views,
+      difficulty: recipe.difficulty,
+      status: recipe.status,
       category: recipe.category.toString(),
+      createdAt: recipe.createdAt,
+      updatedAt: recipe.updatedAt,
     }));
+
+    return {
+      data,
+      total,
+      page,
+      lastPage: Math.ceil(total / limit),
+    };
   }
 
   async create(

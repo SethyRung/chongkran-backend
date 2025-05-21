@@ -33,8 +33,8 @@ export class RecipesController {
   @Public()
   @Get()
   @ApiOkResponse({ type: RecipeDto, isArray: true })
-  @ApiQuery({ name: "page", required: false, type: Number, default: 1 })
-  @ApiQuery({ name: "limit", required: false, type: Number, default: 10 })
+  @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
+  @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
   async findAll(
     @Query() paginationQuery: PaginationQueryDto
   ): Promise<PaginatedResponseDto<RecipeDto>> {
@@ -47,21 +47,29 @@ export class RecipesController {
   @ApiQuery({
     name: "status",
     enum: ["all", "pending", "approved", "rejected"],
+    required: false,
     default: "all",
   })
+  @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
+  @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
   async findMy(
     @GetCurrentUserId() userId: string,
-    @Query("status") status: RecipeDto["status"] & "all"
-  ): Promise<RecipeDto[]> {
-    return this.recipesService.findMy(userId, status);
+    @Query("status") status: RecipeDto["status"] & "all",
+    @Query() paginationQuery: PaginationQueryDto
+  ): Promise<PaginatedResponseDto<RecipeDto>> {
+    return this.recipesService.findMy(userId, status, paginationQuery);
   }
 
   @ApiBearerAuth()
   @Get("/pending")
   @Roles(Role.Admin)
   @ApiOkResponse({ type: RecipeDto, isArray: true })
-  async findPending(): Promise<RecipeDto[]> {
-    return this.recipesService.findPending();
+  @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
+  @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
+  async findPending(
+    @Query() paginationQuery: PaginationQueryDto
+  ): Promise<PaginatedResponseDto<RecipeDto>> {
+    return this.recipesService.findPending(paginationQuery);
   }
 
   @Public()
