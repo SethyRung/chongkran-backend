@@ -22,6 +22,8 @@ import { Role } from "src/common/enums/role.enum";
 import { Roles } from "src/common/decorators/roles.decorator";
 import { GetCurrentUserId, Public } from "src/common/decorators";
 import { UpdateRecipeDto } from "./dto/update_recipe.dto";
+import { PaginationQueryDto } from "src/dto/pagination-query.dto";
+import { PaginatedResponseDto } from "src/dto/paginated-response.dto";
 
 @ApiTags("Recipes")
 @Controller("recipes")
@@ -31,8 +33,12 @@ export class RecipesController {
   @Public()
   @Get()
   @ApiOkResponse({ type: RecipeDto, isArray: true })
-  async findAll(): Promise<RecipeDto[]> {
-    return this.recipesService.findAll();
+  @ApiQuery({ name: "page", required: false, type: Number, default: 1 })
+  @ApiQuery({ name: "limit", required: false, type: Number, default: 10 })
+  async findAll(
+    @Query() paginationQuery: PaginationQueryDto
+  ): Promise<PaginatedResponseDto<RecipeDto>> {
+    return this.recipesService.findAll(paginationQuery);
   }
 
   @ApiBearerAuth()
