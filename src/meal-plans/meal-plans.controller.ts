@@ -6,13 +6,21 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from "@nestjs/common";
 import { MealPlansService } from "./meal-plans.service";
 import { CreateMealPlanDto } from "./dto/create-meal-plan.dto";
 import { UpdateMealPlanDto } from "./dto/update-meal-plan.dto";
-import { ApiBearerAuth, ApiOkResponse, ApiTags } from "@nestjs/swagger";
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiQuery,
+  ApiTags,
+} from "@nestjs/swagger";
 import { MealPlanDto } from "./dto/meal-plan.dto";
 import { GetCurrentUserId } from "src/common/decorators";
+import { PaginationQueryDto } from "src/dto/pagination-query.dto";
+import { PaginatedResponseDto } from "src/dto/paginated-response.dto";
 
 @ApiTags("Meal-Plans")
 @Controller("meal-plans")
@@ -31,9 +39,14 @@ export class MealPlansController {
 
   @ApiBearerAuth()
   @Get()
+  @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
+  @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
   @ApiOkResponse({ type: MealPlanDto, isArray: true })
-  async findAll(@GetCurrentUserId() userId: string): Promise<MealPlanDto[]> {
-    return await this.mealPlansService.findAll(userId);
+  async findAll(
+    @GetCurrentUserId() userId: string,
+    @Query() paginationQuery: PaginationQueryDto
+  ): Promise<PaginatedResponseDto<MealPlanDto>> {
+    return await this.mealPlansService.findAll(userId, paginationQuery);
   }
 
   @ApiBearerAuth()

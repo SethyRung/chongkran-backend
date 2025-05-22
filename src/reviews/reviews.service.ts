@@ -10,6 +10,8 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Review, ReviewDocument } from "./schemas/review.schema";
 import { Model } from "mongoose";
 import { User, UserDocument } from "src/user/schemas/user.schema";
+import { PaginationQueryDto } from "src/dto/pagination-query.dto";
+import { PaginatedResponseDto } from "src/dto/paginated-response.dto";
 
 @Injectable()
 export class ReviewsService {
@@ -44,9 +46,19 @@ export class ReviewsService {
     };
   }
 
-  async findAll(recipeId: string): Promise<ReviewDto[]> {
-    const reviews = await this.reviewModel.find().exec();
-    return reviews.map((review) => ({
+  async findAll(
+    recipeId: string,
+    paginationQuery: PaginationQueryDto
+  ): Promise<PaginatedResponseDto<ReviewDto>> {
+    const { page = 1, limit = 10 } = paginationQuery;
+    const skip = (page - 1) * limit;
+
+    const [reviews, total] = await Promise.all([
+      this.reviewModel.find().skip(skip).limit(limit).exec(),
+      this.reviewModel.countDocuments().exec(),
+    ]);
+
+    const data: ReviewDto[] = reviews.map((review) => ({
       id: review.id,
       recipeId,
       userId: review.userId.toString(),
@@ -55,6 +67,13 @@ export class ReviewsService {
       createdAt: review.createdAt,
       updatedAt: review.updatedAt,
     }));
+
+    return {
+      data,
+      total,
+      page,
+      lastPage: Math.ceil(total / limit),
+    };
   }
 
   async findOne(id: string): Promise<ReviewDto> {

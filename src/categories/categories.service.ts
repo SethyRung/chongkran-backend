@@ -10,6 +10,8 @@ import { CategoryDto } from "./dto/category.dto";
 import { InjectModel } from "@nestjs/mongoose";
 import { Category, CategoryDocument } from "./schemas/category.schema";
 import { Model } from "mongoose";
+import { PaginatedResponseDto } from "src/dto/paginated-response.dto";
+import { PaginationQueryDto } from "src/dto/pagination-query.dto";
 
 @Injectable()
 export class CategoriesService {
@@ -34,17 +36,35 @@ export class CategoriesService {
     };
   }
 
-  async findAll(): Promise<CategoryDto[]> {
-    const categories = await this.categoryModel
-      .find({ isDeleted: false })
-      .exec();
-    return categories.map((category) => ({
+  async findAll(
+    paginationQuery: PaginationQueryDto
+  ): Promise<PaginatedResponseDto<CategoryDto>> {
+    const { page = 1, limit = 10 } = paginationQuery;
+    const skip = (page - 1) * limit;
+
+    const [categories, total] = await Promise.all([
+      this.categoryModel
+        .find({ isDeleted: false })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.categoryModel.countDocuments({ isDeleted: false }).exec(),
+    ]);
+
+    const data: CategoryDto[] = categories.map((category) => ({
       id: category.id,
       name: category.name,
       description: category.description,
       createdAt: category.createdAt,
       updatedAt: category.updatedAt,
     }));
+
+    return {
+      data,
+      total,
+      page,
+      lastPage: Math.ceil(total / limit),
+    };
   }
 
   async findById(id: string): Promise<CategoryDto> {

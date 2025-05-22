@@ -9,6 +9,8 @@ import {
   AuthorRequest,
 } from "./schemas/author_request.schema";
 import { UpdateUserDto } from "./dto/update_user.dto";
+import { PaginationQueryDto } from "src/dto/pagination-query.dto";
+import { PaginatedResponseDto } from "src/dto/paginated-response.dto";
 
 @Injectable()
 export class UserService {
@@ -17,13 +19,37 @@ export class UserService {
     @InjectModel(AuthorRequest.name)
     private authorRequestModel: Model<AuthorRequesDocument>
   ) {}
-  async findAll(): Promise<UserResponseDto[]> {
-    const users = await this.userModel.find({
-      $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }],
-    });
-    return plainToInstance(UserResponseDto, users, {
+  async findAll(
+    paginationQuery: PaginationQueryDto
+  ): Promise<PaginatedResponseDto<UserResponseDto>> {
+    const { page = 1, limit = 10 } = paginationQuery;
+    const skip = (page - 1) * limit;
+
+    const [users, total] = await Promise.all([
+      this.userModel
+        .find({
+          $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }],
+        })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.userModel
+        .countDocuments({
+          $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }],
+        })
+        .exec(),
+    ]);
+
+    const data: UserResponseDto[] = plainToInstance(UserResponseDto, users, {
       excludeExtraneousValues: true,
     });
+
+    return {
+      data,
+      total,
+      page,
+      lastPage: Math.ceil(total / limit),
+    };
   }
 
   async findById(id: string): Promise<UserResponseDto> {

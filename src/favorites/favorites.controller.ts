@@ -1,8 +1,18 @@
-import { Controller, Get, Post, Body, Param, Delete } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Query,
+} from "@nestjs/common";
 import { FavoritesService } from "./favorites.service";
 import { FavoriteDto } from "./dto/favorite.dto";
 import { GetCurrentUserId } from "src/common/decorators";
-import { ApiBearerAuth, ApiOkResponse } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiOkResponse, ApiQuery } from "@nestjs/swagger";
+import { PaginatedResponseDto } from "src/dto/paginated-response.dto";
+import { PaginationQueryDto } from "src/dto/pagination-query.dto";
 
 @Controller("favorites")
 export class FavoritesController {
@@ -20,12 +30,19 @@ export class FavoritesController {
 
   @ApiBearerAuth()
   @Get("/:recipeId")
+  @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
+  @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
   @ApiOkResponse({ type: FavoriteDto, isArray: true })
   async findAll(
     @Param("recipeId") recipeId: string,
-    @GetCurrentUserId() userId: string
-  ): Promise<FavoriteDto[]> {
-    return await this.favoritesService.findAll(recipeId, userId);
+    @GetCurrentUserId() userId: string,
+    @Query() paginationQuery: PaginationQueryDto
+  ): Promise<PaginatedResponseDto<FavoriteDto>> {
+    return await this.favoritesService.findAll(
+      recipeId,
+      userId,
+      paginationQuery
+    );
   }
 
   @ApiBearerAuth()
