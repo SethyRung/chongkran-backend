@@ -6,13 +6,16 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from "@nestjs/common";
 import { ReviewsService } from "./reviews.service";
 import { ReviewDto } from "./dto/review.dto";
 import { CreateReviewDto } from "./dto/create-review.dto";
 import { UpdateReviewDto } from "./dto/update-review.dto";
-import { ApiBearerAuth, ApiOkResponse } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiOkResponse, ApiQuery } from "@nestjs/swagger";
 import { GetCurrentUserId } from "src/common/decorators";
+import { PaginatedResponseDto } from "src/dto/paginated-response.dto";
+import { PaginationQueryDto } from "src/dto/pagination-query.dto";
 
 @Controller("reviews")
 export class ReviewsController {
@@ -31,9 +34,11 @@ export class ReviewsController {
 
   @ApiBearerAuth()
   @Get("/recipe/:recipeId")
+  @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
+  @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
   @ApiOkResponse({ type: ReviewDto, isArray: true })
-  async findAll(@Param("recipeId") recipeId: string): Promise<ReviewDto[]> {
-    return await this.reviewsService.findAll(recipeId);
+  async findAll(@Param("recipeId") recipeId: string, @Query() paginationQuery: PaginationQueryDto): Promise<PaginatedResponseDto<ReviewDto>> {
+    return await this.reviewsService.findAll(recipeId, paginationQuery);
   }
 
   @ApiBearerAuth()

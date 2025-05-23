@@ -5,6 +5,8 @@ import { MealPlanDto } from "./dto/meal-plan.dto";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { MealPlan, MealPlanDocument } from "./schemas/meal-plan.schema";
+import { PaginationQueryDto } from "src/dto/pagination-query.dto";
+import { PaginatedResponseDto } from "src/dto/paginated-response.dto";
 
 @Injectable()
 export class MealPlansService {
@@ -35,9 +37,19 @@ export class MealPlansService {
     };
   }
 
-  async findAll(userId: string): Promise<MealPlanDto[]> {
-    const mealPlans = await this.mealPlanModel.find({ userId }).exec();
-    return mealPlans.map((mealPlan) => ({
+  async findAll(
+    userId: string,
+    paginationQuery: PaginationQueryDto
+  ): Promise<PaginatedResponseDto<MealPlanDto>> {
+    const { page = 1, limit = 10 } = paginationQuery;
+    const skip = (page - 1) * limit;
+
+    const [mealPlans, total] = await Promise.all([
+      this.mealPlanModel.find({ userId }).skip(skip).limit(limit).exec(),
+      this.mealPlanModel.countDocuments({ userId }).exec(),
+    ]);
+
+    const data: MealPlanDto[] = mealPlans.map((mealPlan) => ({
       id: mealPlan.id,
       userId,
       title: mealPlan.title,
@@ -49,6 +61,13 @@ export class MealPlansService {
       createdAt: mealPlan.createdAt,
       updatedAt: mealPlan.updatedAt,
     }));
+
+    return {
+      data,
+      total,
+      page,
+      lastPage: Math.ceil(total / limit),
+    };
   }
 
   async findOne(id: string, userId: string): Promise<MealPlanDto> {

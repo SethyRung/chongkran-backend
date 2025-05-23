@@ -8,8 +8,14 @@ import {
   Param,
   Patch,
   Put,
+  Query,
 } from "@nestjs/common";
-import { ApiBearerAuth, ApiOkResponse, ApiTags } from "@nestjs/swagger";
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiQuery,
+  ApiTags,
+} from "@nestjs/swagger";
 import { UserService } from "./user.service";
 import { UserResponseDto } from "./dto/user_response.dto";
 import { GetCurrentUser, GetCurrentUserId } from "src/common/decorators";
@@ -17,6 +23,8 @@ import { Roles } from "src/common/decorators/roles.decorator";
 import { Role } from "src/common/enums/role.enum";
 import { UpdateUserDto } from "./dto/update_user.dto";
 import { UserClaim } from "./dto/user_claim.dto";
+import { PaginationQueryDto } from "src/dto/pagination-query.dto";
+import { PaginatedResponseDto } from "src/dto/paginated-response.dto";
 
 @ApiTags("Users")
 @Controller("/api/users")
@@ -25,9 +33,13 @@ export class UserController {
 
   @ApiBearerAuth()
   @Get()
+  @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
+  @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
   @ApiOkResponse({ type: UserResponseDto, isArray: true })
-  async findAll(): Promise<UserResponseDto[]> {
-    return await this.userService.findAll();
+  async findAll(
+    @Query() paginationQuery: PaginationQueryDto
+  ): Promise<PaginatedResponseDto<UserResponseDto>> {
+    return await this.userService.findAll(paginationQuery);
   }
 
   @ApiBearerAuth()
