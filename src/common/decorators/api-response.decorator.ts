@@ -4,29 +4,46 @@ import { BaseResponseDto } from "src/dto/base-response.dto";
 
 type ApiResponseOptions<TModel> = {
   type: TModel;
-  isArray?: boolean | undefined;
+  isArray?: boolean;
 };
+
+const PRIMITIVE_MAP = new Map<any, string>([
+  [String, "string"],
+  [Number, "number"],
+  [Boolean, "boolean"],
+]);
 
 export function ApiResponse<TModel extends Type<any>>(
   options: ApiResponseOptions<TModel>
 ): MethodDecorator {
+  const { type, isArray } = options;
+
+  const isPrimitive = PRIMITIVE_MAP.has(type);
+  const primitiveType = PRIMITIVE_MAP.get(type);
+
+  const dataSchema = isPrimitive
+    ? isArray
+      ? { type: "array", items: { type: primitiveType } }
+      : { type: primitiveType }
+    : isArray
+      ? {
+          type: "array",
+          items: { $ref: getSchemaPath(type) },
+        }
+      : {
+          type: "object",
+          $ref: getSchemaPath(type),
+        };
+
   return applyDecorators(
-    ApiExtraModels(BaseResponseDto, options.type),
+    ...(isPrimitive ? [] : [ApiExtraModels(BaseResponseDto, type)]),
     ApiOkResponse({
       schema: {
         allOf: [
           { $ref: getSchemaPath(BaseResponseDto) },
           {
             properties: {
-              data: options.isArray
-                ? {
-                    type: "array",
-                    items: { $ref: getSchemaPath(options.type) },
-                  }
-                : {
-                    type: "object",
-                    $ref: getSchemaPath(options.type),
-                  },
+              data: dataSchema,
             },
           },
         ],

@@ -7,11 +7,28 @@ type ApiResponseOptions<TModel> = {
   type: TModel;
 };
 
+const PRIMITIVE_MAP = new Map<any, string>([
+  [String, "string"],
+  [Number, "number"],
+  [Boolean, "boolean"],
+]);
+
 export function ApiPaginatedResponse<TModel extends Type<any>>(
   options: ApiResponseOptions<TModel>
 ): MethodDecorator {
+  const { type } = options;
+
+  const isPrimitive = PRIMITIVE_MAP.has(type);
+  const primitiveType = PRIMITIVE_MAP.get(type);
+
+  const itemsSchema = isPrimitive
+    ? { type: primitiveType }
+    : { $ref: getSchemaPath(type) };
+
   return applyDecorators(
-    ApiExtraModels(BaseResponseDto, options.type),
+    ...(isPrimitive
+      ? [ApiExtraModels(BaseResponseDto, PaginatedResponseDto)]
+      : [ApiExtraModels(BaseResponseDto, PaginatedResponseDto, type)]),
     ApiOkResponse({
       schema: {
         allOf: [
@@ -26,7 +43,7 @@ export function ApiPaginatedResponse<TModel extends Type<any>>(
                     properties: {
                       content: {
                         type: "array",
-                        items: { $ref: getSchemaPath(options.type) },
+                        items: itemsSchema,
                       },
                     },
                   },
