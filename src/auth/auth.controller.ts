@@ -1,22 +1,18 @@
 import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
-import {
-  ApiBearerAuth,
-  ApiOkResponse,
-  ApiResponse,
-  ApiTags,
-} from "@nestjs/swagger";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
 import {
+  ApiResponse,
   GetCurrentUser,
   GetCurrentUserId,
   Public,
 } from "src/common/decorators";
 import { RtGuard } from "src/common/guards";
 import { AuthResponseDto } from "./dto/auth-response.dto";
-import { User } from "src/user/schemas/user.schema";
 import { SignupDto } from "./dto/signup.dto";
 import { LoginDto } from "./dto/login.dto";
 import { UserResponseDto } from "src/user/dto/user_response.dto";
+import { buildResponse } from "src/common/utils/response.util";
 
 @ApiTags("Auth")
 @Controller("/api/auth")
@@ -25,46 +21,43 @@ export class AuthController {
 
   @Public()
   @Post("signup")
-  @ApiResponse({
-    status: 201,
-    description: "User successfully created",
-  })
+  @ApiResponse({ type: String })
   async signup(@Body() dto: SignupDto) {
-    return await this.authService.signup(dto);
+    return buildResponse({ data: await this.authService.signup(dto) });
   }
 
   @Public()
   @Post("login")
-  @ApiOkResponse({ type: AuthResponseDto })
+  @ApiResponse({ type: AuthResponseDto })
   async login(@Body() dto: LoginDto) {
-    return await this.authService.login(dto);
+    return buildResponse({ data: await this.authService.login(dto) });
   }
 
   @ApiBearerAuth()
   @Get("/me")
-  @ApiOkResponse({ type: UserResponseDto })
-  async findCurrentUser(
-    @GetCurrentUserId() id: string
-  ): Promise<UserResponseDto> {
-    return await this.authService.findCurrentUser(id);
+  @ApiResponse({ type: UserResponseDto })
+  async findCurrentUser(@GetCurrentUserId() id: string) {
+    return buildResponse({ data: await this.authService.findCurrentUser(id) });
   }
 
   @ApiBearerAuth()
   @Post("logout")
-  @ApiOkResponse()
+  @ApiResponse({ type: String })
   async logout(@GetCurrentUserId() userId: string) {
-    return await this.authService.logout(userId);
+    return buildResponse({ data: await this.authService.logout(userId) });
   }
 
   @Public()
   @ApiBearerAuth()
   @UseGuards(RtGuard)
   @Get("refresh")
-  @ApiOkResponse()
+  @ApiResponse({ type: AuthResponseDto })
   async refresh(
     @GetCurrentUserId() userId: string,
     @GetCurrentUser("refreshToken") refreshToken: string
   ) {
-    return await this.authService.refresh(userId, refreshToken);
+    return buildResponse({
+      data: await this.authService.refresh(userId, refreshToken),
+    });
   }
 }

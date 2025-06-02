@@ -11,18 +11,17 @@ import {
 import { CategoriesService } from "./categories.service";
 import { CreateCategoryDto } from "./dto/create-category.dto";
 import { UpdateCategoryDto } from "./dto/update-category.dto";
-import {
-  ApiBearerAuth,
-  ApiOkResponse,
-  ApiQuery,
-  ApiTags,
-} from "@nestjs/swagger";
+import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { Roles } from "src/common/decorators/roles.decorator";
 import { Role } from "src/common/enums/role.enum";
 import { CategoryDto } from "./dto/category.dto";
-import { Public } from "src/common/decorators";
+import {
+  ApiPaginatedResponse,
+  ApiResponse,
+  Public,
+} from "src/common/decorators";
 import { PaginationQueryDto } from "src/dto/pagination-query.dto";
-import { PaginatedResponseDto } from "src/dto/paginated-response.dto";
+import { buildResponse } from "src/common/utils/response.util";
 
 @ApiTags("Categories")
 @Controller("categories")
@@ -32,47 +31,49 @@ export class CategoriesController {
   @ApiBearerAuth()
   @Post()
   @Roles(Role.Admin)
-  @ApiOkResponse({ type: CategoryDto })
-  async create(
-    @Body() createCategoryDto: CreateCategoryDto
-  ): Promise<CategoryDto> {
-    return await this.categoriesService.create(createCategoryDto);
+  @ApiResponse({ type: CategoryDto })
+  async create(@Body() createCategoryDto: CreateCategoryDto) {
+    return buildResponse({
+      data: await this.categoriesService.create(createCategoryDto),
+    });
   }
 
   @Public()
   @Get()
   @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
   @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
-  @ApiOkResponse({ type: CategoryDto, isArray: true })
-  async findAll(
-    @Query() paginationQuery: PaginationQueryDto
-  ): Promise<PaginatedResponseDto<CategoryDto>> {
-    return await this.categoriesService.findAll(paginationQuery);
+  @ApiPaginatedResponse({ type: CategoryDto })
+  async findAll(@Query() paginationQuery: PaginationQueryDto) {
+    return buildResponse({
+      data: await this.categoriesService.findAll(paginationQuery),
+    });
   }
 
   @Public()
   @Get(":id")
-  @ApiOkResponse({ type: CategoryDto })
-  findById(@Param("id") id: string) {
-    return this.categoriesService.findById(id);
+  @ApiResponse({ type: CategoryDto })
+  async findById(@Param("id") id: string) {
+    return buildResponse({ data: await this.categoriesService.findById(id) });
   }
 
   @ApiBearerAuth()
   @Patch(":id")
   @Roles(Role.Admin)
-  @ApiOkResponse({ type: CategoryDto })
+  @ApiResponse({ type: CategoryDto })
   async update(
     @Param("id") id: string,
     @Body() updateCategoryDto: UpdateCategoryDto
-  ): Promise<CategoryDto> {
-    return await this.categoriesService.update(id, updateCategoryDto);
+  ) {
+    return buildResponse({
+      data: await this.categoriesService.update(id, updateCategoryDto),
+    });
   }
 
   @ApiBearerAuth()
   @Delete(":id")
   @Roles(Role.Admin)
-  @ApiOkResponse({ type: String })
-  async remove(@Param("id") id: string): Promise<string> {
-    return await this.categoriesService.remove(id);
+  @ApiResponse({ type: String })
+  async remove(@Param("id") id: string) {
+    return buildResponse({ data: await this.categoriesService.remove(id) });
   }
 }

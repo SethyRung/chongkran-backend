@@ -25,11 +25,12 @@ export class AuthService {
     private config: ConfigService
   ) {}
 
-  async signup(dto: SignupDto): Promise<undefined> {
+  async signup(dto: SignupDto): Promise<String> {
     const user = await this.userModel.findOne({ email: dto.email }).exec();
     if (!!user) throw new ConflictException("Email is alread exists");
     const hash = await bcrypt.hash(dto.password, 10);
     await this.userModel.create({ ...dto, password: hash, role: Role.User });
+    return "User successfully created";
   }
 
   async login(dto: LoginDto): Promise<AuthResponseDto> {
@@ -58,11 +59,13 @@ export class AuthService {
     });
   }
 
-  async logout(userId: string): Promise<undefined> {
+  async logout(userId: string): Promise<String> {
     await this.userModel.updateOne(
       { _id: userId },
       { $set: { refreshToken: "" } }
     );
+
+    return "User successfully logout";
   }
 
   async refresh(userId: string, rt: string): Promise<AuthResponseDto> {

@@ -7,13 +7,9 @@ import {
 import { FileInterceptor } from "@nestjs/platform-express";
 import { UploadService } from "./upload.service";
 import { UploadDto } from "./dto/upload.dto";
-import {
-  ApiBearerAuth,
-  ApiBody,
-  ApiConsumes,
-  ApiOkResponse,
-  ApiTags,
-} from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from "@nestjs/swagger";
+import { ApiResponse } from "src/common/decorators";
+import { buildResponse } from "src/common/utils/response.util";
 
 @ApiTags("Upload")
 @Controller("upload")
@@ -35,10 +31,8 @@ export class UploadController {
       },
     },
   })
-  @ApiOkResponse({ type: UploadDto })
-  async uploadImage(
-    @UploadedFile() file: Express.Multer.File
-  ): Promise<UploadDto> {
-    return await this.uploadService.uploadImage(file);
+  @ApiResponse({ type: UploadDto })
+  async uploadImage(@UploadedFile() file: Express.Multer.File) {
+    return buildResponse({ data: await this.uploadService.uploadImage(file) });
   }
 }

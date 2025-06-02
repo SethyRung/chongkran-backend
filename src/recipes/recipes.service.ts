@@ -53,7 +53,7 @@ export class RecipesService {
     }));
 
     return {
-      data,
+      content: data,
       total,
       page,
       lastPage: Math.ceil(total / limit),
@@ -99,7 +99,7 @@ export class RecipesService {
     }));
 
     return {
-      data,
+      content: data,
       total,
       page,
       lastPage: Math.ceil(total / limit),
@@ -156,7 +156,7 @@ export class RecipesService {
     }));
 
     return {
-      data,
+      content: data,
       total,
       page,
       lastPage: Math.ceil(total / limit),

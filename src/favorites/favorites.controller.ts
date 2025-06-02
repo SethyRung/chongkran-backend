@@ -1,18 +1,14 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Delete,
-  Query,
-} from "@nestjs/common";
+import { Controller, Get, Post, Param, Delete, Query } from "@nestjs/common";
 import { FavoritesService } from "./favorites.service";
 import { FavoriteDto } from "./dto/favorite.dto";
-import { GetCurrentUserId } from "src/common/decorators";
-import { ApiBearerAuth, ApiOkResponse, ApiQuery } from "@nestjs/swagger";
-import { PaginatedResponseDto } from "src/dto/paginated-response.dto";
+import {
+  ApiPaginatedResponse,
+  ApiResponse,
+  GetCurrentUserId,
+} from "src/common/decorators";
+import { ApiBearerAuth, ApiQuery } from "@nestjs/swagger";
 import { PaginationQueryDto } from "src/dto/pagination-query.dto";
+import { buildResponse } from "src/common/utils/response.util";
 
 @Controller("favorites")
 export class FavoritesController {
@@ -20,38 +16,44 @@ export class FavoritesController {
 
   @ApiBearerAuth()
   @Post("/:recipeId")
-  @ApiOkResponse({ type: FavoriteDto })
+  @ApiResponse({ type: FavoriteDto })
   async create(
     @Param("recipeId") recipeId: string,
     @GetCurrentUserId() userId: string
-  ): Promise<FavoriteDto> {
-    return await this.favoritesService.create(recipeId, userId);
+  ) {
+    return buildResponse({
+      data: await this.favoritesService.create(recipeId, userId),
+    });
   }
 
   @ApiBearerAuth()
   @Get("/:recipeId")
   @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
   @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
-  @ApiOkResponse({ type: FavoriteDto, isArray: true })
+  @ApiPaginatedResponse({ type: FavoriteDto })
   async findAll(
     @Param("recipeId") recipeId: string,
     @GetCurrentUserId() userId: string,
     @Query() paginationQuery: PaginationQueryDto
-  ): Promise<PaginatedResponseDto<FavoriteDto>> {
-    return await this.favoritesService.findAll(
-      recipeId,
-      userId,
-      paginationQuery
-    );
+  ) {
+    return buildResponse({
+      data: await this.favoritesService.findAll(
+        recipeId,
+        userId,
+        paginationQuery
+      ),
+    });
   }
 
   @ApiBearerAuth()
   @Delete("/:recipeId")
-  @ApiOkResponse({ type: String })
+  @ApiResponse({ type: String })
   async remove(
     @Param("recipeId") recipeId: string,
     @GetCurrentUserId() userId: string
-  ): Promise<string> {
-    return await this.favoritesService.remove(recipeId, userId);
+  ) {
+    return buildResponse({
+      data: await this.favoritesService.remove(recipeId, userId),
+    });
   }
 }
