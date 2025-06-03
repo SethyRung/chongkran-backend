@@ -1,9 +1,4 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateCategoryDto } from "./dto/create-category.dto";
 import { UpdateCategoryDto } from "./dto/update-category.dto";
 import { CategoryDto } from "./dto/category.dto";
@@ -60,7 +55,7 @@ export class CategoriesService {
     }));
 
     return {
-      data,
+      content: data,
       total,
       page,
       lastPage: Math.ceil(total / limit),

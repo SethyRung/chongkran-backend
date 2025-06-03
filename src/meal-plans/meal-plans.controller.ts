@@ -11,16 +11,15 @@ import {
 import { MealPlansService } from "./meal-plans.service";
 import { CreateMealPlanDto } from "./dto/create-meal-plan.dto";
 import { UpdateMealPlanDto } from "./dto/update-meal-plan.dto";
-import {
-  ApiBearerAuth,
-  ApiOkResponse,
-  ApiQuery,
-  ApiTags,
-} from "@nestjs/swagger";
+import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { MealPlanDto } from "./dto/meal-plan.dto";
-import { GetCurrentUserId } from "src/common/decorators";
+import {
+  ApiPaginatedResponse,
+  ApiResponse,
+  GetCurrentUserId,
+} from "src/common/decorators";
 import { PaginationQueryDto } from "src/dto/pagination-query.dto";
-import { PaginatedResponseDto } from "src/dto/paginated-response.dto";
+import { buildResponse } from "src/common/utils/response.util";
 
 @ApiTags("Meal-Plans")
 @Controller("meal-plans")
@@ -29,54 +28,58 @@ export class MealPlansController {
 
   @ApiBearerAuth()
   @Post()
-  @ApiOkResponse({ type: MealPlanDto })
+  @ApiResponse({ type: MealPlanDto })
   async create(
     @GetCurrentUserId() userId: string,
     @Body() createMealPlanDto: CreateMealPlanDto
-  ): Promise<MealPlanDto> {
-    return await this.mealPlansService.create(userId, createMealPlanDto);
+  ) {
+    return buildResponse({
+      data: await this.mealPlansService.create(userId, createMealPlanDto),
+    });
   }
 
   @ApiBearerAuth()
   @Get()
   @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
   @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
-  @ApiOkResponse({ type: MealPlanDto, isArray: true })
+  @ApiPaginatedResponse({ type: MealPlanDto })
   async findAll(
     @GetCurrentUserId() userId: string,
     @Query() paginationQuery: PaginationQueryDto
-  ): Promise<PaginatedResponseDto<MealPlanDto>> {
-    return await this.mealPlansService.findAll(userId, paginationQuery);
+  ) {
+    return buildResponse({
+      data: await this.mealPlansService.findAll(userId, paginationQuery),
+    });
   }
 
   @ApiBearerAuth()
   @Get(":id")
-  @ApiOkResponse({ type: MealPlanDto })
-  async findOne(
-    @Param("id") id: string,
-    @GetCurrentUserId() userId: string
-  ): Promise<MealPlanDto> {
-    return await this.mealPlansService.findOne(id, userId);
+  @ApiResponse({ type: MealPlanDto })
+  async findOne(@Param("id") id: string, @GetCurrentUserId() userId: string) {
+    return buildResponse({
+      data: await this.mealPlansService.findOne(id, userId),
+    });
   }
 
   @ApiBearerAuth()
   @Patch(":id")
-  @ApiOkResponse({ type: MealPlanDto })
+  @ApiResponse({ type: MealPlanDto })
   async update(
     @Param("id") id: string,
     @GetCurrentUserId() userId: string,
     @Body() updateMealPlanDto: UpdateMealPlanDto
-  ): Promise<MealPlanDto> {
-    return await this.mealPlansService.update(id, userId, updateMealPlanDto);
+  ) {
+    return buildResponse({
+      data: await this.mealPlansService.update(id, userId, updateMealPlanDto),
+    });
   }
 
   @ApiBearerAuth()
   @Delete(":id")
-  @ApiOkResponse({ type: String })
-  async remove(
-    @Param("id") id: string,
-    @GetCurrentUserId() userId: string
-  ): Promise<string> {
-    return await this.mealPlansService.remove(id, userId);
+  @ApiResponse({ type: String })
+  async remove(@Param("id") id: string, @GetCurrentUserId() userId: string) {
+    return buildResponse({
+      data: await this.mealPlansService.remove(id, userId),
+    });
   }
 }

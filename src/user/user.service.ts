@@ -45,7 +45,7 @@ export class UserService {
     });
 
     return {
-      data,
+      content: data,
       total,
       page,
       lastPage: Math.ceil(total / limit),
