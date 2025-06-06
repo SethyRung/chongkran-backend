@@ -6,6 +6,9 @@ import {
 } from "@nestjs/common";
 import { BaseExceptionFilter } from "@nestjs/core";
 import e, { Response } from "express";
+import { BaseResponseDto } from "src/dto/base-response.dto";
+import { buildResponse } from "../utils/response.util";
+import { StatusCode } from "../enums/status-code.enum";
 @Catch()
 export class AllExceptionsFilter extends BaseExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
@@ -26,7 +29,18 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
             ? res.message.join(", ")
             : res.message
           : res;
-      response.status(exception.getStatus()).json(message);
+
+      const statusCode = exception.getStatus().toString();
+
+      const data: BaseResponseDto<null> = buildResponse({
+        code: Object.values(StatusCode).includes(statusCode as StatusCode)
+          ? (statusCode as StatusCode)
+          : StatusCode.INTERNAL_SERVER_ERROR,
+        message: message,
+        data: null,
+      });
+
+      response.status(HttpStatus.OK).json(data);
     } else {
       response
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
