@@ -53,6 +53,11 @@ REFRESH_TOKEN_EXPIRATION="1d"
 
 # CORS Configuration
 ALLOW_ORIGIN="your_frontend_url"
+
+# File Storage
+CLOUDINARY_CLOUD_NAME="your_cloud_name"
+CLOUDINARY_API_KEY="your_api_key"
+CLOUDINARY_API_SECRET="your_api_secret"
 ```
 
 ### Run the Server
@@ -92,6 +97,20 @@ src/
 | POST   | `/api/recipes`          | Create recipe           | ✅   |
 | POST   | `/api/recipes/:id/like` | Toggle like on a recipe | ✅   |
 | POST   | `/api/recipes/:id/view` | Increment recipe views  | ❌   |
+
+### Reponse Structure
+
+```js
+{
+  status: {
+    code: string,
+    message: string,
+    requestId: string,
+    requestTime: number,
+  },
+  data: T
+}
+```
 
 ## 🛡️ License
 
