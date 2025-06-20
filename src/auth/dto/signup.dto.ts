@@ -27,20 +27,6 @@ export class SignupDto {
     required: true,
   })
   @IsNotEmpty()
-  @IsString()
-  gender: "M" | "F";
-
-  @ApiProperty({
-    required: true,
-  })
-  @IsNotEmpty()
-  @IsDateString()
-  dateOfBirth: Date;
-
-  @ApiProperty({
-    required: true,
-  })
-  @IsNotEmpty()
   @IsEmail()
   email: string;
 
