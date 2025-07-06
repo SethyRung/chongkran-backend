@@ -23,11 +23,11 @@ export class User {
   password: string;
 
   @ApiProperty()
-  @Prop({ required: true })
+  @Prop({ required: false })
   gender: string;
 
   @ApiProperty()
-  @Prop({ required: true })
+  @Prop({ required: false })
   dateOfBirth: Date;
 
   @ApiProperty()
