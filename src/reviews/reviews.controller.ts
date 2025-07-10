@@ -22,7 +22,7 @@ import { PaginatedResponseDto } from "src/dto/paginated-response.dto";
 import { PaginationQueryDto } from "src/dto/pagination-query.dto";
 import { buildResponse } from "src/common/utils/response.util";
 
-@Controller("reviews")
+@Controller("/api/reviews")
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 

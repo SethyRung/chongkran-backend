@@ -24,7 +24,7 @@ import { PaginationQueryDto } from "src/dto/pagination-query.dto";
 import { buildResponse } from "src/common/utils/response.util";
 
 @ApiTags("Categories")
-@Controller("categories")
+@Controller("/api/categories")
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 

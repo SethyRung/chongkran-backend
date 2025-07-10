@@ -26,7 +26,7 @@ import { PaginationQueryDto } from "src/dto/pagination-query.dto";
 import { buildResponse } from "src/common/utils/response.util";
 
 @ApiTags("Recipes")
-@Controller("recipes")
+@Controller("/api/recipes")
 export class RecipesController {
   constructor(private readonly recipesService: RecipesService) {}
 
