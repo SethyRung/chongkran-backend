@@ -12,7 +12,7 @@ import { ApiResponse } from "src/common/decorators";
 import { buildResponse } from "src/common/utils/response.util";
 
 @ApiTags("Upload")
-@Controller("upload")
+@Controller("/api/upload")
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 

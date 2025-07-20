@@ -22,7 +22,7 @@ import { PaginationQueryDto } from "src/dto/pagination-query.dto";
 import { buildResponse } from "src/common/utils/response.util";
 
 @ApiTags("Meal-Plans")
-@Controller("meal-plans")
+@Controller("/api/meal-plans")
 export class MealPlansController {
   constructor(private readonly mealPlansService: MealPlansService) {}
 

@@ -35,8 +35,8 @@ export class Recipe {
   @Prop({ default: 0 })
   views: number;
 
-  @Prop({ required: true, enum: ["low", "medium", "hight"] })
-  difficulty: "low" | "medium" | "hight";
+  @Prop({ required: true, enum: ["easy", "medium", "hard"] })
+  difficulty: "easy" | "medium" | "hard";
 
   @Prop({ default: "pending", enum: ["pending", "approved", "rejected"] })
   status: "pending" | "approved" | "rejected";

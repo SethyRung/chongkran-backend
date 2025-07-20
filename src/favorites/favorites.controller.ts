@@ -10,7 +10,7 @@ import { ApiBearerAuth, ApiQuery } from "@nestjs/swagger";
 import { PaginationQueryDto } from "src/dto/pagination-query.dto";
 import { buildResponse } from "src/common/utils/response.util";
 
-@Controller("favorites")
+@Controller("/api/favorites")
 export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
 

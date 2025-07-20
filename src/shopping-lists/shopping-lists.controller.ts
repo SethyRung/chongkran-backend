@@ -8,7 +8,7 @@ import { ApiResponse, GetCurrentUserId } from "src/common/decorators";
 import { buildResponse } from "src/common/utils/response.util";
 
 @ApiTags("Shopping-List")
-@Controller("shopping-lists")
+@Controller("/api/shopping-lists")
 export class ShoppingListsController {
   constructor(private readonly shoppingListsService: ShoppingListsService) {}
 

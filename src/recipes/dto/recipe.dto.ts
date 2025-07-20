@@ -65,9 +65,9 @@ export class RecipeDto {
   @IsOptional()
   views?: number;
 
-  @ApiProperty({ enum: ["low", "medium", "hight"] })
-  @IsEnum(["low", "medium", "hight"])
-  difficulty: "low" | "medium" | "hight";
+  @ApiProperty({ enum: ["easy", "medium", "hard"] })
+  @IsEnum(["easy", "medium", "hard"])
+  difficulty: "easy" | "medium" | "hard";
 
   @ApiProperty({
     enum: ["pending", "approved", "rejected"],
