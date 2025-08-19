@@ -16,14 +16,16 @@ This is the backend service for the Recipe Web Application built using **NestJS*
 
 ### Prerequisites
 
-- Node.js (v22 or above)
+- Node.js v22+
+- npm or pnpm or yarn
 - MongoDB instance (local or cloud like Atlas)
+- Docker & Docker Compose (optional, for running containers)
 
 ### Installation
 
 ```bash
 git clone https://github.com/SethyRung/Chongkran-Backend.git
-cd recipe-backend
+cd chongkran-backend
 npm install
 ```
 
@@ -43,6 +45,8 @@ API_ROOT="api/docs"
 SITE_TITLE="Chongkran"
 
 # Database Connection
+MONGO_INITDB_ROOT_USERNAME="admin"
+MONGO_INITDB_ROOT_PASSWORD="supersecret"
 DATABASE_URL="mongodb_connection"
 
 # Authentication
@@ -60,11 +64,30 @@ CLOUDINARY_API_KEY="your_api_key"
 CLOUDINARY_API_SECRET="your_api_secret"
 ```
 
-### Run the Server
+### Run locally
 
 ```bash
 npm run start:dev
 ```
+
+### Docker Setup (Optional)
+
+#### 1. Build and start containers
+
+```bash
+docker-compose up --build
+```
+
+#### 2. Access backend
+
+http://localhost:8080/api
+
+[Api Docs](http://localhost:8080/api/docs#/)
+
+#### 3. Services
+
+- `backend`: NestJS application
+- `mongo`: MongoDB database
 
 ### 📁 Project Structure
 
@@ -114,7 +137,7 @@ src/
 
 ## 🛡️ License
 
-This project is licensed under the MIT License.
+This project is licensed under the [MIT License](LICENSE).
 
 ## 👨‍💻 Author
 
