@@ -1,5 +1,6 @@
 services:
   backend:
+    container_name: "chongkran-backend"
     build: .
     ports:
       - "8080:8080"
@@ -9,12 +10,15 @@ services:
       - mongo
 
   mongo:
+    container_name: "chongkran-db"
     image: mongodb/mongodb-community-server:latest
     restart: unless-stopped
-    volumes:
-      - mongodata:/data/db
+    ports:
+      - "27017:27017"
     env_file:
       - .env
+    volumes:
+      - mongodata:/data/db
 
 volumes:
   mongodata:

@@ -45,9 +45,9 @@ API_ROOT="api/docs"
 SITE_TITLE="Chongkran"
 
 # Database Connection
-MONGO_INITDB_ROOT_USERNAME="admin"
-MONGO_INITDB_ROOT_PASSWORD="supersecret"
-DATABASE_URL="mongodb_connection"
+MONGO_INITDB_ROOT_USERNAME=admin
+MONGO_INITDB_ROOT_PASSWORD=supersecret
+DATABASE_URL=mongodb://admin:supersecret@mongo:27017/chongkran?authSource=admin
 
 # Authentication
 ACCESS_TOKEN_SECRET="your_access_token_secret"
