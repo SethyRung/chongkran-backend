@@ -26,7 +26,7 @@ This is the backend service for the Recipe Web Application built using **NestJS*
 ```bash
 git clone https://github.com/SethyRung/Chongkran-Backend.git
 cd chongkran-backend
-npm install
+pnpm install
 ```
 
 ### Environment Variables
@@ -67,7 +67,7 @@ CLOUDINARY_API_SECRET="your_api_secret"
 ### Run locally
 
 ```bash
-npm run start:dev
+pnpm start:dev
 ```
 
 ### Docker Setup (Optional)
