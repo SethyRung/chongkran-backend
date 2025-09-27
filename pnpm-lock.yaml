@@ -44,6 +44,9 @@ importers:
       cloudinary:
         specifier: ^2.7.0
         version: 2.7.0
+      jsonwebtoken:
+        specifier: ^9.0.2
+        version: 9.0.2
       mongoose:
         specifier: ^8.18.2
         version: 8.18.2
