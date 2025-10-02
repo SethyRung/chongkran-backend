@@ -26,7 +26,7 @@ This is the backend service for the Recipe Web Application built using **NestJS*
 ```bash
 git clone https://github.com/SethyRung/Chongkran-Backend.git
 cd chongkran-backend
-npm install
+pnpm install
 ```
 
 ### Environment Variables
@@ -45,9 +45,9 @@ API_ROOT="api/docs"
 SITE_TITLE="Chongkran"
 
 # Database Connection
-MONGO_INITDB_ROOT_USERNAME="admin"
-MONGO_INITDB_ROOT_PASSWORD="supersecret"
-DATABASE_URL="mongodb_connection"
+MONGO_INITDB_ROOT_USERNAME=admin
+MONGO_INITDB_ROOT_PASSWORD=supersecret
+DATABASE_URL=mongodb://admin:supersecret@mongo:27017/chongkran?authSource=admin
 
 # Authentication
 ACCESS_TOKEN_SECRET="your_access_token_secret"
@@ -67,7 +67,7 @@ CLOUDINARY_API_SECRET="your_api_secret"
 ### Run locally
 
 ```bash
-npm run start:dev
+pnpm start:dev
 ```
 
 ### Docker Setup (Optional)
