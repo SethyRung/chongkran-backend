@@ -146,4 +146,56 @@ export class RecipesController {
       data: await this.recipesService.incrementViews(id),
     });
   }
+
+  @Public()
+  @Get("/author/:authorId")
+  @ApiPaginatedResponse({ type: RecipeDto })
+  @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
+  @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
+  async findByAuthor(
+    @Param("authorId") authorId: string,
+    @Query() paginationQuery: PaginationQueryDto
+  ) {
+    return buildResponse({
+      data: await this.recipesService.findByAuthor(authorId, paginationQuery),
+    });
+  }
+
+  @Public()
+  @Get("/author/:authorId/popular")
+  @ApiResponse({ type: RecipeDto, isArray: true })
+  @ApiQuery({ name: "limit", type: Number, required: false, default: 5 })
+  async getPopularRecipesByAuthor(
+    @Param("authorId") authorId: string,
+    @Query("limit") limit: number = 5
+  ) {
+    return buildResponse({
+      data: await this.recipesService.getPopularRecipesByAuthor(
+        authorId,
+        limit
+      ),
+    });
+  }
+
+  @Public()
+  @Get("/author/:authorId/recent")
+  @ApiResponse({ type: RecipeDto, isArray: true })
+  @ApiQuery({ name: "limit", type: Number, required: false, default: 5 })
+  async getRecentRecipesByAuthor(
+    @Param("authorId") authorId: string,
+    @Query("limit") limit: number = 5
+  ) {
+    return buildResponse({
+      data: await this.recipesService.getRecentRecipesByAuthor(authorId, limit),
+    });
+  }
+
+  @Public()
+  @Get("/:id/with-author")
+  @ApiResponse({ type: RecipeDto })
+  async findByIdWithAuthor(@Param("id") id: string) {
+    return buildResponse({
+      data: await this.recipesService.findByIdWithAuthor(id),
+    });
+  }
 }
