@@ -16,6 +16,7 @@ import { SignupDto } from "./dto/signup.dto";
 import { JwtPayload } from "./types/JwtPayload";
 import { UserResponseDto } from "src/user/dto/user_response.dto";
 import { plainToInstance } from "class-transformer";
+import { JwtSignOptions } from "jsonwebtoken";
 
 @Injectable()
 export class AuthService {
@@ -96,15 +97,28 @@ export class AuthService {
       role: role,
     };
 
+    const atSecret = this.config.get<string>("ACCESS_TOKEN_SECRET");
+    const rtSecret = this.config.get<string>("REFRESH_TOKEN_SECRET");
+    const atExpiration = this.config.get<string>("ACCESS_TOKEN_EXPIRATION");
+    const rtExpiration = this.config.get<string>("REFRESH_TOKEN_EXPIRATION");
+
+    if (!atSecret || !rtSecret || !atExpiration || !rtExpiration) {
+      throw new Error("Missing JWT configuration values");
+    }
+
+    const atOptions: JwtSignOptions = {
+      secret: atSecret,
+      expiresIn: atExpiration,
+    };
+
+    const rtOptions: JwtSignOptions = {
+      secret: rtSecret,
+      expiresIn: rtExpiration,
+    };
+
     const [at, rt] = await Promise.all([
-      this.jwtService.signAsync(jwtPayload, {
-        secret: this.config.get<string>("ACCESS_TOKEN_SECRET"),
-        expiresIn: this.config.get<string>("ACCESS_TOKEN_EXPIRATION"),
-      }),
-      this.jwtService.signAsync(jwtPayload, {
-        secret: this.config.get<string>("REFRESH_TOKEN_SECRET"),
-        expiresIn: this.config.get<string>("REFRESH_TOKEN_EXPIRATION"),
-      }),
+      this.jwtService.signAsync(jwtPayload, atOptions),
+      this.jwtService.signAsync(jwtPayload, rtOptions),
     ]);
 
     return {
