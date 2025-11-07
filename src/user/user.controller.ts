@@ -50,41 +50,6 @@ export class UserController {
   }
 
   @ApiBearerAuth()
-  @Get("/:id")
-  @Roles(Role.Admin)
-  @ApiResponse({ type: UserResponseDto })
-  async findById(@Param("id") id: string) {
-    return buildResponse({ data: await this.userService.findById(id) });
-  }
-
-  @ApiBearerAuth()
-  @Patch("/:id")
-  @ApiResponse({ type: String })
-  async updateById(
-    @GetCurrentUser()
-    currentUser: UserClaim,
-    @Param("id") id: string,
-    @Body() updateUserDto: UpdateUserDto
-  ) {
-    if (currentUser.role !== Role.Admin && currentUser.sub !== id)
-      throw new HttpException(
-        "Sorry, you don't have permission to update this user's information.",
-        HttpStatus.FORBIDDEN
-      );
-    return buildResponse({
-      data: await this.userService.updateById(id, updateUserDto),
-    });
-  }
-
-  @ApiBearerAuth()
-  @Delete("/:id")
-  @Roles(Role.Admin)
-  @ApiResponse({ type: String })
-  async deleteById(@Param("id") id: string) {
-    return buildResponse({ data: await this.userService.deleteById(id) });
-  }
-
-  @ApiBearerAuth()
   @Put("/become-author")
   @ApiResponse({ type: String })
   async becomeAuthor(@GetCurrentUserId() id: string) {
@@ -169,5 +134,41 @@ export class UserController {
     return buildResponse({
       data: await this.userService.updateAuthorProfile(id, updateData),
     });
+  }
+
+  @ApiBearerAuth()
+  @Get("/:id")
+  @Roles(Role.Admin)
+  @ApiResponse({ type: UserResponseDto })
+  async findById(@Param("id") id: string) {
+    console.log("log");
+    return buildResponse({ data: await this.userService.findById(id) });
+  }
+
+  @ApiBearerAuth()
+  @Patch("/:id")
+  @ApiResponse({ type: String })
+  async updateById(
+    @GetCurrentUser()
+    currentUser: UserClaim,
+    @Param("id") id: string,
+    @Body() updateUserDto: UpdateUserDto
+  ) {
+    if (currentUser.role !== Role.Admin && currentUser.sub !== id)
+      throw new HttpException(
+        "Sorry, you don't have permission to update this user's information.",
+        HttpStatus.FORBIDDEN
+      );
+    return buildResponse({
+      data: await this.userService.updateById(id, updateUserDto),
+    });
+  }
+
+  @ApiBearerAuth()
+  @Delete("/:id")
+  @Roles(Role.Admin)
+  @ApiResponse({ type: String })
+  async deleteById(@Param("id") id: string) {
+    return buildResponse({ data: await this.userService.deleteById(id) });
   }
 }

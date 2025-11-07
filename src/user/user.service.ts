@@ -27,20 +27,19 @@ export class UserService {
     const { page = 1, limit = 10 } = paginationQuery;
     const skip = (page - 1) * limit;
 
-    const [users, total] = await Promise.all([
-      this.userModel
-        .find({
-          $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }],
-        })
-        .skip(skip)
-        .limit(limit)
-        .exec(),
-      this.userModel
-        .countDocuments({
-          $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }],
-        })
-        .exec(),
-    ]);
+      const users = await this.userModel
+      .find({
+        $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }],
+      })
+      .skip(skip)
+      .limit(limit)
+      .exec();
+
+    const total = await this.userModel
+      .countDocuments({
+        $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }],
+      })
+      .exec();
 
     const data: UserResponseDto[] = plainToInstance(UserResponseDto, users, {
       excludeExtraneousValues: true,
@@ -122,16 +121,15 @@ export class UserService {
       query.expertise = { $in: [expertise] };
     }
 
-    const [authors, total] = await Promise.all([
-      this.userModel
-        .find(query)
-        .select("-password -refreshToken")
-        .sort({ followersCount: -1, recipesCount: -1 })
-        .skip(skip)
-        .limit(limit)
-        .exec(),
-      this.userModel.countDocuments(query).exec(),
-    ]);
+    const authors = await this.userModel
+      .find(query)
+      .select("-password -refreshToken")
+      .sort({ followersCount: -1, recipesCount: -1 })
+      .skip(skip)
+      .limit(limit)
+      .exec();
+
+    const total = await this.userModel.countDocuments(query).exec();
 
     const data: UserResponseDto[] = plainToInstance(UserResponseDto, authors, {
       excludeExtraneousValues: true,
