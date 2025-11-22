@@ -15,6 +15,7 @@ import { FavoritesModule } from "./favorites/favorites.module";
 import { MealPlansModule } from "./meal-plans/meal-plans.module";
 import { ShoppingListsModule } from "./shopping-lists/shopping-lists.module";
 import { UploadModule } from "./upload/upload.module";
+import { FollowModule } from "./follows/follow.module";
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { UploadModule } from "./upload/upload.module";
     MealPlansModule,
     ShoppingListsModule,
     UploadModule,
+    FollowModule,
   ],
   controllers: [AppController],
   providers: [

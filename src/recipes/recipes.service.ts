@@ -279,4 +279,130 @@ export class RecipesService {
   async incrementViews(id: string) {
     await this.recipeModel.findByIdAndUpdate(id, { $inc: { views: 1 } });
   }
+
+  async findByAuthor(
+    authorId: string,
+    paginationQuery: PaginationQueryDto
+  ): Promise<PaginatedResponseDto<RecipeDto>> {
+    const { page = 1, limit = 10 } = paginationQuery;
+    const skip = (page - 1) * limit;
+
+    const [recipes, total] = await Promise.all([
+      this.recipeModel
+        .find({ author: authorId, status: "approved" })
+        .populate("author", "firstName lastName avatar")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.recipeModel.countDocuments({ author: authorId, status: "approved" }).exec(),
+    ]);
+
+    const data: RecipeDto[] = recipes.map((recipe) => ({
+      ...recipe.toObject(),
+      id: recipe._id.toString(),
+      author: recipe.author.toString(),
+      likes: recipe.likes.length,
+      category: recipe.category.toString(),
+    }));
+
+    return {
+      content: data,
+      total,
+      page,
+      lastPage: Math.ceil(total / limit),
+    };
+  }
+
+  async findByIdWithAuthor(id: string): Promise<RecipeDto> {
+    const recipe = await this.recipeModel
+      .findById(id)
+      .populate("author", "firstName lastName avatar bio expertise")
+      .exec();
+
+    if (!recipe) {
+      throw new HttpException("Recipe not found.", HttpStatus.BAD_REQUEST);
+    }
+
+    return {
+      ...recipe.toObject(),
+      id: recipe._id.toString(),
+      author: recipe.author.toString(),
+      likes: recipe.likes.length,
+      category: recipe.category.toString(),
+    };
+  }
+
+  async findAllWithAuthors(
+    paginationQuery: PaginationQueryDto
+  ): Promise<PaginatedResponseDto<RecipeDto>> {
+    const { page = 1, limit = 10 } = paginationQuery;
+    const skip = (page - 1) * limit;
+
+    const [recipes, total] = await Promise.all([
+      this.recipeModel
+        .find({ status: "approved" })
+        .populate("author", "firstName lastName avatar")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      this.recipeModel.countDocuments({ status: "approved" }).exec(),
+    ]);
+
+    const data: RecipeDto[] = recipes.map((recipe) => ({
+      ...recipe.toObject(),
+      id: recipe._id.toString(),
+      author: recipe.author.toString(),
+      likes: recipe.likes.length,
+      category: recipe.category.toString(),
+    }));
+
+    return {
+      content: data,
+      total,
+      page,
+      lastPage: Math.ceil(total / limit),
+    };
+  }
+
+  async getPopularRecipesByAuthor(
+    authorId: string,
+    limit = 5
+  ): Promise<RecipeDto[]> {
+    const recipes = await this.recipeModel
+      .find({ author: authorId, status: "approved" })
+      .populate("author", "firstName lastName avatar")
+      .sort({ views: -1, likes: -1 })
+      .limit(limit)
+      .exec();
+
+    return recipes.map((recipe) => ({
+      ...recipe.toObject(),
+      id: recipe._id.toString(),
+      author: recipe.author.toString(),
+      likes: recipe.likes.length,
+      category: recipe.category.toString(),
+    }));
+  }
+
+  async getRecentRecipesByAuthor(
+    authorId: string,
+    limit = 5
+  ): Promise<RecipeDto[]> {
+    const recipes = await this.recipeModel
+      .find({ author: authorId, status: "approved" })
+      .populate("author", "firstName lastName avatar")
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .exec();
+
+    return recipes.map((recipe) => ({
+      ...recipe.toObject(),
+      id: recipe._id.toString(),
+      author: recipe.author.toString(),
+      likes: recipe.likes.length,
+      category: recipe.category.toString(),
+    }));
+  }
 }

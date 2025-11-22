@@ -7,12 +7,14 @@ import {
   AuthorRequesSchema,
   AuthorRequest,
 } from "./schemas/author_request.schema";
+import { Recipe, RecipeSchema } from "../recipes/schemas/recipe.schema";
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: AuthorRequest.name, schema: AuthorRequesSchema },
+      { name: Recipe.name, schema: RecipeSchema },
     ]),
   ],
   controllers: [UserController],

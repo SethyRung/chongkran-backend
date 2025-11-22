@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { ApiProperty } from "@nestjs/swagger";
-import { Document, HydratedDocument } from "mongoose";
+import { HydratedDocument } from "mongoose";
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -33,6 +33,55 @@ export class User {
   @ApiProperty()
   @Prop({ required: true, enum: ["user", "author", "admin"] })
   role: "user" | "author" | "admin";
+
+  // Author-specific fields
+  @ApiProperty({ required: false })
+  @Prop()
+  bio?: string;
+
+  @ApiProperty({ required: false })
+  @Prop([String])
+  expertise?: string[];
+
+  @ApiProperty({ required: false })
+  @Prop()
+  avatar?: string;
+
+  @ApiProperty({ required: false })
+  @Prop()
+  website?: string;
+
+  @ApiProperty({ required: false })
+  @Prop()
+  instagram?: string;
+
+  @ApiProperty({ required: false })
+  @Prop()
+  youtube?: string;
+
+  @ApiProperty({ required: false })
+  @Prop()
+  tiktok?: string;
+
+  @ApiProperty({ required: false })
+  @Prop({ default: 0 })
+  followersCount?: number;
+
+  @ApiProperty({ required: false })
+  @Prop({ default: 0 })
+  followingCount?: number;
+
+  @ApiProperty({ required: false })
+  @Prop({ default: 0 })
+  recipesCount?: number;
+
+  @ApiProperty({ required: false })
+  @Prop({ default: 0 })
+  totalViews?: number;
+
+  @ApiProperty({ required: false })
+  @Prop({ default: 0 })
+  totalLikes?: number;
 
   @Prop({ default: false })
   isDeleted: boolean;
