@@ -66,13 +66,13 @@ export class UserController {
   async getAuthors(
     @Query() paginationQuery: PaginationQueryDto,
     @Query("search") search?: string,
-    @Query("expertise") expertise?: string
+    @Query("expertise") expertise?: string,
   ) {
     return buildResponse({
       data: await this.userService.getAuthors(
         paginationQuery,
         search,
-        expertise
+        expertise,
       ),
     });
   }
@@ -94,7 +94,7 @@ export class UserController {
   @ApiResponse({ type: UserResponseDto, isArray: true })
   async searchAuthors(
     @Query("q") query: string,
-    @Query("limit") limit: number = 20
+    @Query("limit") limit: number = 20,
   ) {
     return buildResponse({
       data: await this.userService.searchAuthors(query, limit),
@@ -123,12 +123,12 @@ export class UserController {
   async updateAuthorProfile(
     @GetCurrentUser() currentUser: UserClaim,
     @Param("id") id: string,
-    @Body() updateData: UpdateAuthorProfileDto
+    @Body() updateData: UpdateAuthorProfileDto,
   ) {
     if (currentUser.role !== Role.Admin && currentUser.sub !== id) {
       throw new HttpException(
         "Sorry, you don't have permission to update this author's profile.",
-        HttpStatus.FORBIDDEN
+        HttpStatus.FORBIDDEN,
       );
     }
     return buildResponse({
@@ -141,7 +141,6 @@ export class UserController {
   @Roles(Role.Admin)
   @ApiResponse({ type: UserResponseDto })
   async findById(@Param("id") id: string) {
-    console.log("log");
     return buildResponse({ data: await this.userService.findById(id) });
   }
 
@@ -152,12 +151,12 @@ export class UserController {
     @GetCurrentUser()
     currentUser: UserClaim,
     @Param("id") id: string,
-    @Body() updateUserDto: UpdateUserDto
+    @Body() updateUserDto: UpdateUserDto,
   ) {
     if (currentUser.role !== Role.Admin && currentUser.sub !== id)
       throw new HttpException(
         "Sorry, you don't have permission to update this user's information.",
-        HttpStatus.FORBIDDEN
+        HttpStatus.FORBIDDEN,
       );
     return buildResponse({
       data: await this.userService.updateById(id, updateUserDto),
