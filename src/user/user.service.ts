@@ -85,9 +85,10 @@ export class UserService {
   }
 
   async becomeAuthor(id: string): Promise<string> {
-    if ((await this.authorRequestModel.exists({ userId: id })) === null) {
+    const existing = await this.authorRequestModel.findOne({ userId: new Types.ObjectId(id) }).exec();
+    if (!existing) {
       await this.authorRequestModel.create({
-        userId: id,
+        userId: new Types.ObjectId(id),
         status: "pending",
       });
     }

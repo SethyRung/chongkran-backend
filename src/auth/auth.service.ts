@@ -16,7 +16,6 @@ import { SignupDto } from "./dto/signup.dto";
 import { JwtPayload } from "./types/JwtPayload";
 import { UserResponseDto } from "src/user/dto/user_response.dto";
 import { plainToInstance } from "class-transformer";
-import { JwtSignOptions } from "jsonwebtoken";
 
 @Injectable()
 export class AuthService {
@@ -43,9 +42,9 @@ export class AuthService {
     if (!passwordMatches)
       throw new ForbiddenException("Email or Password is invalid.");
 
-    const tokens = await this.generateTokens(user.id, user.email, user.role);
+    const tokens = await this.generateTokens(user._id.toString(), user.email, user.role);
     await this.userModel.updateOne(
-      { _id: user.id },
+      { _id: user._id },
       { $set: { refreshToken: tokens.refreshToken } }
     );
 
@@ -75,9 +74,9 @@ export class AuthService {
     });
     if (!user) throw new ForbiddenException("Access Denied");
 
-    const tokens = await this.generateTokens(user.id, user.email, user.role);
+    const tokens = await this.generateTokens(user._id.toString(), user.email, user.role);
     await this.userModel.updateOne(
-      { _id: user.id },
+      { _id: user._id },
       {
         $set: { refreshToken: tokens.refreshToken },
       }
@@ -106,19 +105,15 @@ export class AuthService {
       throw new Error("Missing JWT configuration values");
     }
 
-    const atOptions: JwtSignOptions = {
-      secret: atSecret,
-      expiresIn: atExpiration,
-    };
-
-    const rtOptions: JwtSignOptions = {
-      secret: rtSecret,
-      expiresIn: rtExpiration,
-    };
-
     const [at, rt] = await Promise.all([
-      this.jwtService.signAsync(jwtPayload, atOptions),
-      this.jwtService.signAsync(jwtPayload, rtOptions),
+      this.jwtService.signAsync(jwtPayload, {
+        secret: atSecret,
+        expiresIn: atExpiration,
+      } as any),
+      this.jwtService.signAsync(jwtPayload, {
+        secret: rtSecret,
+        expiresIn: rtExpiration,
+      } as any),
     ]);
 
     return {

@@ -3,7 +3,7 @@ import { CreateMealPlanDto } from "./dto/create-meal-plan.dto";
 import { UpdateMealPlanDto } from "./dto/update-meal-plan.dto";
 import { MealPlanDto } from "./dto/meal-plan.dto";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import { Model, Types } from "mongoose";
 import { MealPlan, MealPlanDocument } from "./schemas/meal-plan.schema";
 import { PaginationQueryDto } from "src/dto/pagination-query.dto";
 import { PaginatedResponseDto } from "src/dto/paginated-response.dto";
@@ -20,11 +20,16 @@ export class MealPlansService {
   ): Promise<MealPlanDto> {
     const created = await this.mealPlanModel.create({
       ...createMealPlanDto,
-      userId,
+      userId: new Types.ObjectId(userId),
+      recipes: createMealPlanDto.recipes.map((r) => ({
+        recipeId: new Types.ObjectId(r.recipeId),
+        day: r.day,
+        mealType: r.mealType,
+      })),
     });
 
     return {
-      id: created.id,
+      id: created._id.toString(),
       userId,
       title: created.title,
       recipes: created.recipes.map((recipe) => ({
@@ -50,7 +55,7 @@ export class MealPlansService {
     ]);
 
     const data: MealPlanDto[] = mealPlans.map((mealPlan) => ({
-      id: mealPlan.id,
+      id: mealPlan._id.toString(),
       userId,
       title: mealPlan.title,
       recipes: mealPlan.recipes.map((recipe) => ({
@@ -78,7 +83,7 @@ export class MealPlansService {
     if (!mealPlan) throw new NotFoundException("Plan not found.");
 
     return {
-      id: mealPlan.id,
+      id: mealPlan._id.toString(),
       userId,
       title: mealPlan.title,
       recipes: mealPlan.recipes.map((recipe) => ({
@@ -104,7 +109,7 @@ export class MealPlansService {
     Object.assign(mealPlan, { ...updateMealPlanDto });
     const updated = await mealPlan.save();
     return {
-      id: updated.id,
+      id: updated._id.toString(),
       userId,
       title: updated.title,
       recipes: updated.recipes.map((recipe) => ({
