@@ -23,7 +23,7 @@ export class CategoriesService {
     });
 
     return {
-      id: created.id,
+      id: created._id.toString(),
       name: created.name,
       description: created.description,
       createdAt: created.createdAt,
@@ -47,7 +47,7 @@ export class CategoriesService {
     ]);
 
     const data: CategoryDto[] = categories.map((category) => ({
-      id: category.id,
+      id: category._id.toString(),
       name: category.name,
       description: category.description,
       createdAt: category.createdAt,
@@ -70,7 +70,7 @@ export class CategoriesService {
     if (!category) throw new NotFoundException("Category not found.");
 
     return {
-      id: category.id,
+      id: category._id.toString(),
       name: category.name,
       description: category.description,
       createdAt: category.createdAt,
@@ -91,7 +91,7 @@ export class CategoriesService {
     Object.assign(category, { ...updateCategoryDto, updateAt: currentDate });
     const updated = await category.save();
     return {
-      id: updated.id,
+      id: updated._id.toString(),
       name: updated.name,
       description: updated.description,
       createdAt: updated.createdAt,

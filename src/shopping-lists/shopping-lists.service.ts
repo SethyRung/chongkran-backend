@@ -37,7 +37,7 @@ export class ShoppingListsService {
     });
 
     return {
-      id: created.id,
+      id: created._id.toString(),
       userId,
       items: created.items.map((shoppingItem) => ({
         name: shoppingItem.name,
@@ -56,7 +56,7 @@ export class ShoppingListsService {
     if (!shoppingItem) throw new NotFoundException("List not found.");
 
     return {
-      id: shoppingItem.id,
+      id: shoppingItem._id.toString(),
       userId,
       items: shoppingItem.items.map((shoppingItem) => ({
         name: shoppingItem.name,
@@ -79,7 +79,7 @@ export class ShoppingListsService {
     Object.assign(shoppingItem, { ...updateShoppingListDto });
     const updated = await shoppingItem.save();
     return {
-      id: updated.id,
+      id: updated._id.toString(),
       userId,
       items: updated.items.map((shoppingItem) => ({
         name: shoppingItem.name,

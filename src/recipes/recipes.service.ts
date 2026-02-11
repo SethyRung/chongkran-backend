@@ -34,7 +34,7 @@ export class RecipesService {
     ]);
 
     const data: RecipeDto[] = recipes.map((recipe) => ({
-      id: recipe.id,
+      id: recipe._id.toString(),
       title: recipe.title,
       description: recipe.description,
       ingredients: recipe.ingredients,
@@ -80,7 +80,7 @@ export class RecipesService {
     ]);
 
     const data: RecipeDto[] = recipes.map((recipe) => ({
-      id: recipe.id,
+      id: recipe._id.toString(),
       title: recipe.title,
       description: recipe.description,
       ingredients: recipe.ingredients,
@@ -137,7 +137,7 @@ export class RecipesService {
     ]);
 
     const data: RecipeDto[] = recipes.map((recipe) => ({
-      id: recipe.id,
+      id: recipe._id.toString(),
       title: recipe.title,
       description: recipe.description,
       ingredients: recipe.ingredients,
@@ -180,7 +180,7 @@ export class RecipesService {
 
     const created = await this.recipeModel.create({
       ...createRecipe,
-      author: user.id,
+      author: user._id,
       createdAt: currentDate,
       updatedAt: currentDate,
     });

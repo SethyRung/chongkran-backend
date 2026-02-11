@@ -19,7 +19,7 @@ export class FavoritesService {
 
     if (existingFavorite) {
       return {
-        id: existingFavorite.id,
+        id: existingFavorite._id.toString(),
         recipeId,
         userId,
         createdAt: existingFavorite.createdAt,
@@ -34,7 +34,7 @@ export class FavoritesService {
     });
 
     return {
-      id: newFavorite.id,
+      id: newFavorite._id.toString(),
       recipeId,
       userId,
       createdAt: newFavorite.createdAt,
@@ -59,7 +59,7 @@ export class FavoritesService {
     ]);
 
     const data: FavoriteDto[] = favorites.map((favorite) => ({
-      id: favorite.id,
+      id: favorite._id.toString(),
       recipeId: favorite.recipeId.toString(),
       userId: favorite.userId.toString(),
       createdAt: favorite.createdAt,

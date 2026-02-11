@@ -36,7 +36,7 @@ export class ReviewsService {
     });
 
     return {
-      id: created.id,
+      id: created._id.toString(),
       recipeId,
       userId,
       rating: created.rating,
@@ -59,7 +59,7 @@ export class ReviewsService {
     ]);
 
     const data: ReviewDto[] = reviews.map((review) => ({
-      id: review.id,
+      id: review._id.toString(),
       recipeId,
       userId: review.userId.toString(),
       rating: review.rating,
@@ -80,7 +80,7 @@ export class ReviewsService {
     const review = await this.reviewModel.findById(id).exec();
     if (!review) throw new NotFoundException("Review not found.");
     return {
-      id: review.id,
+      id: review._id.toString(),
       recipeId: review.recipeId.toString(),
       userId: review.userId.toString(),
       rating: review.rating,
@@ -102,7 +102,7 @@ export class ReviewsService {
     Object.assign(review, { ...updateReviewDto, updateAt: currentDate });
     const updated = await review.save();
     return {
-      id: updated.id,
+      id: updated._id.toString(),
       recipeId: updated.recipeId.toString(),
       userId,
       rating: updated.rating,
