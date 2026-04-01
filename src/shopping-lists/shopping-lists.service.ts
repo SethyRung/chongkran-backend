@@ -1,35 +1,24 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
 import { CreateShoppingListDto } from "./dto/create-shopping-list.dto";
 import { UpdateShoppingListDto } from "./dto/update-shopping-list.dto";
 import { ShoppingListDto } from "./dto/shopping-list.dto";
 import { InjectModel } from "@nestjs/mongoose";
-import {
-  ShoppingList,
-  ShoppingListDocument,
-} from "./schemas/shopping-list.schema";
+import { ShoppingList, ShoppingListDocument } from "./schemas/shopping-list.schema";
 import { Model } from "mongoose";
 
 @Injectable()
 export class ShoppingListsService {
   constructor(
     @InjectModel(ShoppingList.name)
-    private shoppingListModel: Model<ShoppingListDocument>
+    private shoppingListModel: Model<ShoppingListDocument>,
   ) {}
 
   async create(
     userId: string,
-    createShoppingListDto: CreateShoppingListDto
+    createShoppingListDto: CreateShoppingListDto,
   ): Promise<ShoppingListDto> {
-    const shoppingItem = await this.shoppingListModel
-      .findOne({ userId })
-      .exec();
-    if (shoppingItem)
-      throw new HttpException("List is already exist", HttpStatus.BAD_REQUEST);
+    const shoppingItem = await this.shoppingListModel.findOne({ userId }).exec();
+    if (shoppingItem) throw new HttpException("List is already exist", HttpStatus.BAD_REQUEST);
 
     const created = await this.shoppingListModel.create({
       ...createShoppingListDto,
@@ -49,9 +38,7 @@ export class ShoppingListsService {
   }
 
   async findOne(userId: string): Promise<ShoppingListDto> {
-    const shoppingItem = await this.shoppingListModel
-      .findOne({ userId })
-      .exec();
+    const shoppingItem = await this.shoppingListModel.findOne({ userId }).exec();
 
     if (!shoppingItem) throw new NotFoundException("List not found.");
 
@@ -69,11 +56,9 @@ export class ShoppingListsService {
 
   async update(
     userId: string,
-    updateShoppingListDto: UpdateShoppingListDto
+    updateShoppingListDto: UpdateShoppingListDto,
   ): Promise<ShoppingListDto> {
-    const shoppingItem = await this.shoppingListModel
-      .findOne({ userId })
-      .exec();
+    const shoppingItem = await this.shoppingListModel.findOne({ userId }).exec();
     if (!shoppingItem) throw new NotFoundException("List not found");
 
     Object.assign(shoppingItem, { ...updateShoppingListDto });

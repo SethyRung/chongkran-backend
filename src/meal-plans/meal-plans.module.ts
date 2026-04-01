@@ -5,11 +5,7 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { MealPlan, MealPlanSchema } from "./schemas/meal-plan.schema";
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([
-      { name: MealPlan.name, schema: MealPlanSchema },
-    ]),
-  ],
+  imports: [MongooseModule.forFeature([{ name: MealPlan.name, schema: MealPlanSchema }])],
   controllers: [MealPlansController],
   providers: [MealPlansService],
 })

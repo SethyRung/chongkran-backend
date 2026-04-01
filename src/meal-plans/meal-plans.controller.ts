@@ -1,25 +1,12 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Query,
-} from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from "@nestjs/common";
 import { MealPlansService } from "./meal-plans.service";
 import { CreateMealPlanDto } from "./dto/create-meal-plan.dto";
 import { UpdateMealPlanDto } from "./dto/update-meal-plan.dto";
 import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { MealPlanDto } from "./dto/meal-plan.dto";
-import {
-  ApiPaginatedResponse,
-  ApiResponse,
-  GetCurrentUserId,
-} from "src/common/decorators";
-import { PaginationQueryDto } from "src/dto/pagination-query.dto";
-import { buildResponse } from "src/common/utils/response.util";
+import { ApiPaginatedResponse, ApiResponse, GetCurrentUserId } from "@/common/decorators";
+import { PaginationQueryDto } from "@/dto/pagination-query.dto";
+import { buildResponse } from "@/common/utils/response.util";
 
 @ApiTags("Meal-Plans")
 @Controller("/api/meal-plans")
@@ -29,10 +16,7 @@ export class MealPlansController {
   @ApiBearerAuth()
   @Post()
   @ApiResponse({ type: MealPlanDto })
-  async create(
-    @GetCurrentUserId() userId: string,
-    @Body() createMealPlanDto: CreateMealPlanDto
-  ) {
+  async create(@GetCurrentUserId() userId: string, @Body() createMealPlanDto: CreateMealPlanDto) {
     return buildResponse({
       data: await this.mealPlansService.create(userId, createMealPlanDto),
     });
@@ -43,10 +27,7 @@ export class MealPlansController {
   @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
   @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
   @ApiPaginatedResponse({ type: MealPlanDto })
-  async findAll(
-    @GetCurrentUserId() userId: string,
-    @Query() paginationQuery: PaginationQueryDto
-  ) {
+  async findAll(@GetCurrentUserId() userId: string, @Query() paginationQuery: PaginationQueryDto) {
     return buildResponse({
       data: await this.mealPlansService.findAll(userId, paginationQuery),
     });
@@ -67,7 +48,7 @@ export class MealPlansController {
   async update(
     @Param("id") id: string,
     @GetCurrentUserId() userId: string,
-    @Body() updateMealPlanDto: UpdateMealPlanDto
+    @Body() updateMealPlanDto: UpdateMealPlanDto,
   ) {
     return buildResponse({
       data: await this.mealPlansService.update(id, userId, updateMealPlanDto),

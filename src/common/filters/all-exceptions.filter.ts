@@ -1,12 +1,7 @@
-import {
-  Catch,
-  ArgumentsHost,
-  HttpException,
-  HttpStatus,
-} from "@nestjs/common";
+import { Catch, ArgumentsHost, HttpException, HttpStatus } from "@nestjs/common";
 import { BaseExceptionFilter } from "@nestjs/core";
-import e, { Response } from "express";
-import { BaseResponseDto } from "src/dto/base-response.dto";
+import { Response } from "express";
+import { BaseResponseDto } from "@/dto/base-response.dto";
 import { buildResponse } from "../utils/response.util";
 import { StatusCode } from "../enums/status-code.enum";
 @Catch()
@@ -42,9 +37,7 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
 
       response.status(HttpStatus.OK).json(data);
     } else {
-      response
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json("Internal Server Error");
+      response.status(HttpStatus.INTERNAL_SERVER_ERROR).json("Internal Server Error");
     }
 
     super.catch(exception, host);

@@ -10,5 +10,5 @@ export class UpdateRecipeDto extends PartialType(
     "status",
     "createdAt",
     "updatedAt",
-  ] as const)
+  ] as const),
 ) {}

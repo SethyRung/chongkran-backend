@@ -1,18 +1,13 @@
 import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
-import {
-  ApiResponse,
-  GetCurrentUser,
-  GetCurrentUserId,
-  Public,
-} from "src/common/decorators";
-import { RtGuard } from "src/common/guards";
+import { ApiResponse, GetCurrentUser, GetCurrentUserId, Public } from "@/common/decorators";
+import { RtGuard } from "@/common/guards";
 import { AuthResponseDto } from "./dto/auth-response.dto";
 import { SignupDto } from "./dto/signup.dto";
 import { LoginDto } from "./dto/login.dto";
-import { UserResponseDto } from "src/user/dto/user_response.dto";
-import { buildResponse } from "src/common/utils/response.util";
+import { UserResponseDto } from "@/user/dto/user_response.dto";
+import { buildResponse } from "@/common/utils/response.util";
 
 @ApiTags("Auth")
 @Controller("/api/auth")
@@ -54,7 +49,7 @@ export class AuthController {
   @ApiResponse({ type: AuthResponseDto })
   async refresh(
     @GetCurrentUserId() userId: string,
-    @GetCurrentUser("refreshToken") refreshToken: string
+    @GetCurrentUser("refreshToken") refreshToken: string,
   ) {
     return buildResponse({
       data: await this.authService.refresh(userId, refreshToken),

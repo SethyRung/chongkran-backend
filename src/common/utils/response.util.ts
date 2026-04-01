@@ -1,4 +1,4 @@
-import { BaseResponseDto } from "src/dto/base-response.dto";
+import { BaseResponseDto } from "@/dto/base-response.dto";
 import { randomUUID } from "crypto";
 import { StatusCode } from "../enums/status-code.enum";
 

@@ -1,9 +1,4 @@
-import {
-  IsMongoId,
-  IsNotEmpty,
-  IsArray,
-  ValidateNested,
-} from "class-validator";
+import { IsMongoId, IsNotEmpty, IsArray, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
 import { ShoppingItemDto } from "./shopping-item.dto";
 import { ApiProperty } from "@nestjs/swagger";

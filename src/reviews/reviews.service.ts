@@ -1,29 +1,25 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
+import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { CreateReviewDto } from "./dto/create-review.dto";
 import { UpdateReviewDto } from "./dto/update-review.dto";
 import { ReviewDto } from "./dto/review.dto";
 import { InjectModel } from "@nestjs/mongoose";
 import { Review, ReviewDocument } from "./schemas/review.schema";
 import { Model } from "mongoose";
-import { User, UserDocument } from "src/user/schemas/user.schema";
-import { PaginationQueryDto } from "src/dto/pagination-query.dto";
-import { PaginatedResponseDto } from "src/dto/paginated-response.dto";
+import { User, UserDocument } from "@/user/schemas/user.schema";
+import { PaginationQueryDto } from "@/dto/pagination-query.dto";
+import { PaginatedResponseDto } from "@/dto/paginated-response.dto";
 
 @Injectable()
 export class ReviewsService {
   constructor(
     @InjectModel(Review.name) private reviewModel: Model<ReviewDocument>,
-    @InjectModel(User.name) private userModel: Model<UserDocument>
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {}
 
   async create(
     recipeId: string,
     userId: string,
-    createReviewDto: CreateReviewDto
+    createReviewDto: CreateReviewDto,
   ): Promise<ReviewDto> {
     const currentDate = new Date().toISOString();
 
@@ -48,7 +44,7 @@ export class ReviewsService {
 
   async findAll(
     recipeId: string,
-    paginationQuery: PaginationQueryDto
+    paginationQuery: PaginationQueryDto,
   ): Promise<PaginatedResponseDto<ReviewDto>> {
     const { page = 1, limit = 10 } = paginationQuery;
     const skip = (page - 1) * limit;
@@ -90,11 +86,7 @@ export class ReviewsService {
     };
   }
 
-  async update(
-    id: string,
-    userId: string,
-    updateReviewDto: UpdateReviewDto
-  ): Promise<ReviewDto> {
+  async update(id: string, userId: string, updateReviewDto: UpdateReviewDto): Promise<ReviewDto> {
     const review = await this.reviewModel.findOne({ _id: id, userId }).exec();
     if (!review) throw new NotFoundException("Review not found");
 

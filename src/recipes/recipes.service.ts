@@ -10,21 +10,19 @@ import { CreateRecipeDto } from "./dto/create_recipe.dto";
 import { InjectModel } from "@nestjs/mongoose";
 import { Recipe, RecipeDocument } from "./schemas/recipe.schema";
 import { Model, Types } from "mongoose";
-import { User, UserDocument } from "src/user/schemas/user.schema";
+import { User, UserDocument } from "@/user/schemas/user.schema";
 import { UpdateRecipeDto } from "./dto/update_recipe.dto";
-import { PaginationQueryDto } from "src/dto/pagination-query.dto";
-import { PaginatedResponseDto } from "src/dto/paginated-response.dto";
+import { PaginationQueryDto } from "@/dto/pagination-query.dto";
+import { PaginatedResponseDto } from "@/dto/paginated-response.dto";
 
 @Injectable()
 export class RecipesService {
   constructor(
     @InjectModel(Recipe.name) private recipeModel: Model<RecipeDocument>,
-    @InjectModel(User.name) private userModel: Model<UserDocument>
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {}
 
-  async findAll(
-    paginationQuery: PaginationQueryDto
-  ): Promise<PaginatedResponseDto<RecipeDto>> {
+  async findAll(paginationQuery: PaginationQueryDto): Promise<PaginatedResponseDto<RecipeDto>> {
     const { page = 1, limit = 10 } = paginationQuery;
     const skip = (page - 1) * limit;
 
@@ -63,7 +61,7 @@ export class RecipesService {
   async findMy(
     userId: string,
     status: RecipeDto["status"] & "all",
-    paginationQuery: PaginationQueryDto
+    paginationQuery: PaginationQueryDto,
   ): Promise<PaginatedResponseDto<RecipeDto>> {
     const filter = status && status !== "all" ? { status } : {};
 
@@ -109,8 +107,7 @@ export class RecipesService {
   async findById(id: string): Promise<RecipeDto> {
     const recipe = await this.recipeModel.findById(id).exec();
 
-    if (!recipe)
-      throw new HttpException("Recipe not found.", HttpStatus.BAD_REQUEST);
+    if (!recipe) throw new HttpException("Recipe not found.", HttpStatus.BAD_REQUEST);
 
     return {
       ...recipe.toObject(),
@@ -121,18 +118,12 @@ export class RecipesService {
     };
   }
 
-  async findPending(
-    paginationQuery: PaginationQueryDto
-  ): Promise<PaginatedResponseDto<RecipeDto>> {
+  async findPending(paginationQuery: PaginationQueryDto): Promise<PaginatedResponseDto<RecipeDto>> {
     const { page = 1, limit = 10 } = paginationQuery;
     const skip = (page - 1) * limit;
 
     const [recipes, total] = await Promise.all([
-      this.recipeModel
-        .find({ status: "pending" })
-        .skip(skip)
-        .limit(limit)
-        .exec(),
+      this.recipeModel.find({ status: "pending" }).skip(skip).limit(limit).exec(),
       this.recipeModel.countDocuments({ status: "pending" }).exec(),
     ]);
 
@@ -163,18 +154,11 @@ export class RecipesService {
     };
   }
 
-  async create(
-    userId: string,
-    createRecipe: CreateRecipeDto
-  ): Promise<RecipeDto> {
+  async create(userId: string, createRecipe: CreateRecipeDto): Promise<RecipeDto> {
     const user = await this.userModel.findById(userId).exec();
-    if (!user)
-      throw new HttpException("User not found.", HttpStatus.BAD_REQUEST);
+    if (!user) throw new HttpException("User not found.", HttpStatus.BAD_REQUEST);
     else if (user.role === "user")
-      throw new HttpException(
-        "You are not authorized to create a recipe.",
-        HttpStatus.FORBIDDEN
-      );
+      throw new HttpException("You are not authorized to create a recipe.", HttpStatus.FORBIDDEN);
 
     const currentDate = new Date().toISOString();
 
@@ -194,24 +178,17 @@ export class RecipesService {
     };
   }
 
-  async updateStatus(
-    id: string,
-    status: RecipeDto["status"]
-  ): Promise<RecipeDto> {
+  async updateStatus(id: string, status: RecipeDto["status"]): Promise<RecipeDto> {
     const currentDate = new Date().toISOString();
 
     const updated = await this.recipeModel
-      .findByIdAndUpdate(
-        id,
-        { $set: { status: status, updateAt: currentDate } },
-        { new: true }
-      )
+      .findByIdAndUpdate(id, { $set: { status: status, updateAt: currentDate } }, { new: true })
       .exec();
 
     if (!updated)
       throw new HttpException(
         "Recipe not found. Please check the information and try again.",
-        HttpStatus.BAD_REQUEST
+        HttpStatus.BAD_REQUEST,
       );
 
     return {
@@ -223,11 +200,7 @@ export class RecipesService {
     };
   }
 
-  async update(
-    id: string,
-    userId: string,
-    updateRecipe: UpdateRecipeDto
-  ): Promise<RecipeDto> {
+  async update(id: string, userId: string, updateRecipe: UpdateRecipeDto): Promise<RecipeDto> {
     const recipe = await this.recipeModel.findById(id).exec();
     if (!recipe) throw new NotFoundException("Recipe not found");
 
@@ -282,7 +255,7 @@ export class RecipesService {
 
   async findByAuthor(
     authorId: string,
-    paginationQuery: PaginationQueryDto
+    paginationQuery: PaginationQueryDto,
   ): Promise<PaginatedResponseDto<RecipeDto>> {
     const { page = 1, limit = 10 } = paginationQuery;
     const skip = (page - 1) * limit;
@@ -334,7 +307,7 @@ export class RecipesService {
   }
 
   async findAllWithAuthors(
-    paginationQuery: PaginationQueryDto
+    paginationQuery: PaginationQueryDto,
   ): Promise<PaginatedResponseDto<RecipeDto>> {
     const { page = 1, limit = 10 } = paginationQuery;
     const skip = (page - 1) * limit;
@@ -366,10 +339,7 @@ export class RecipesService {
     };
   }
 
-  async getPopularRecipesByAuthor(
-    authorId: string,
-    limit = 5
-  ): Promise<RecipeDto[]> {
+  async getPopularRecipesByAuthor(authorId: string, limit = 5): Promise<RecipeDto[]> {
     const recipes = await this.recipeModel
       .find({ author: authorId, status: "approved" })
       .populate("author", "firstName lastName avatar")
@@ -386,10 +356,7 @@ export class RecipesService {
     }));
   }
 
-  async getRecentRecipesByAuthor(
-    authorId: string,
-    limit = 5
-  ): Promise<RecipeDto[]> {
+  async getRecentRecipesByAuthor(authorId: string, limit = 5): Promise<RecipeDto[]> {
     const recipes = await this.recipeModel
       .find({ author: authorId, status: "approved" })
       .populate("author", "firstName lastName avatar")

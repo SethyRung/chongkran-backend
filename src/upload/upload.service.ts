@@ -1,5 +1,6 @@
+/// <reference types="multer" />
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
-import { CloudinaryService } from "src/cloudinary/cloudinary.service";
+import { CloudinaryService } from "@/cloudinary/cloudinary.service";
 import { UploadDto } from "./dto/upload.dto";
 
 @Injectable()
@@ -11,7 +12,7 @@ export class UploadService {
     if (!result)
       throw new HttpException(
         "The file could not be uploaded. Please try again.",
-        HttpStatus.INTERNAL_SERVER_ERROR
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     return {
       url: result["secure_url"],

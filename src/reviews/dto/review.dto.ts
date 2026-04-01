@@ -1,12 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import {
-  IsMongoId,
-  IsNotEmpty,
-  IsString,
-  IsNumber,
-  Min,
-} from "class-validator";
+import { IsMongoId, IsNotEmpty, IsString, IsNumber, Min } from "class-validator";
 
 export class ReviewDto {
   @ApiProperty()

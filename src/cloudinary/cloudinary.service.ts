@@ -1,3 +1,4 @@
+/// <reference types="multer" />
 import { Injectable } from "@nestjs/common";
 import { v2 as cloudinary, UploadApiResponse } from "cloudinary";
 import { ConfigService } from "@nestjs/config";
@@ -12,9 +13,7 @@ export class CloudinaryService {
     });
   }
 
-  async uploadFile(
-    file: Express.Multer.File
-  ): Promise<UploadApiResponse | undefined> {
+  async uploadFile(file: Express.Multer.File): Promise<UploadApiResponse | undefined> {
     return new Promise((resolve, reject) => {
       cloudinary.uploader
         .upload_stream({ resource_type: "auto" }, (error, result) => {

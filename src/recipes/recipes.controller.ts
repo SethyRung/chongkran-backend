@@ -1,29 +1,14 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Put,
-  Query,
-} from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query } from "@nestjs/common";
 import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { RecipesService } from "./recipes.service";
 import { RecipeDto } from "./dto/recipe.dto";
 import { CreateRecipeDto } from "./dto/create_recipe.dto";
-import { Role } from "src/common/enums/role.enum";
-import { Roles } from "src/common/decorators/roles.decorator";
-import {
-  ApiPaginatedResponse,
-  ApiResponse,
-  GetCurrentUserId,
-  Public,
-} from "src/common/decorators";
+import { Role } from "@/common/enums/role.enum";
+import { Roles } from "@/common/decorators/roles.decorator";
+import { ApiPaginatedResponse, ApiResponse, GetCurrentUserId, Public } from "@/common/decorators";
 import { UpdateRecipeDto } from "./dto/update_recipe.dto";
-import { PaginationQueryDto } from "src/dto/pagination-query.dto";
-import { buildResponse } from "src/common/utils/response.util";
+import { PaginationQueryDto } from "@/dto/pagination-query.dto";
+import { buildResponse } from "@/common/utils/response.util";
 
 @ApiTags("Recipes")
 @Controller("/api/recipes")
@@ -55,7 +40,7 @@ export class RecipesController {
   async findMy(
     @GetCurrentUserId() userId: string,
     @Query("status") status: RecipeDto["status"] & "all",
-    @Query() paginationQuery: PaginationQueryDto
+    @Query() paginationQuery: PaginationQueryDto,
   ) {
     return buildResponse({
       data: await this.recipesService.findMy(userId, status, paginationQuery),
@@ -84,10 +69,7 @@ export class RecipesController {
   @ApiBearerAuth()
   @Post()
   @ApiResponse({ type: RecipeDto })
-  async create(
-    @GetCurrentUserId() userId: string,
-    @Body() createRecipe: CreateRecipeDto
-  ) {
+  async create(@GetCurrentUserId() userId: string, @Body() createRecipe: CreateRecipeDto) {
     return buildResponse({
       data: await this.recipesService.create(userId, createRecipe),
     });
@@ -99,10 +81,7 @@ export class RecipesController {
   @ApiQuery({ name: "id", type: String })
   @ApiQuery({ name: "status", enum: ["pending", "approved", "rejected"] })
   @ApiResponse({ type: RecipeDto })
-  async updateStatus(
-    @Query("id") id: string,
-    @Query("status") status: RecipeDto["status"]
-  ) {
+  async updateStatus(@Query("id") id: string, @Query("status") status: RecipeDto["status"]) {
     return buildResponse({
       data: await this.recipesService.updateStatus(id, status),
     });
@@ -114,7 +93,7 @@ export class RecipesController {
   async update(
     @Param("id") id: string,
     @GetCurrentUserId() userId,
-    @Body() updateRecipe: UpdateRecipeDto
+    @Body() updateRecipe: UpdateRecipeDto,
   ) {
     return buildResponse({
       data: await this.recipesService.update(userId, id, updateRecipe),
@@ -154,7 +133,7 @@ export class RecipesController {
   @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
   async findByAuthor(
     @Param("authorId") authorId: string,
-    @Query() paginationQuery: PaginationQueryDto
+    @Query() paginationQuery: PaginationQueryDto,
   ) {
     return buildResponse({
       data: await this.recipesService.findByAuthor(authorId, paginationQuery),
@@ -167,13 +146,10 @@ export class RecipesController {
   @ApiQuery({ name: "limit", type: Number, required: false, default: 5 })
   async getPopularRecipesByAuthor(
     @Param("authorId") authorId: string,
-    @Query("limit") limit: number = 5
+    @Query("limit") limit: number = 5,
   ) {
     return buildResponse({
-      data: await this.recipesService.getPopularRecipesByAuthor(
-        authorId,
-        limit
-      ),
+      data: await this.recipesService.getPopularRecipesByAuthor(authorId, limit),
     });
   }
 
@@ -183,7 +159,7 @@ export class RecipesController {
   @ApiQuery({ name: "limit", type: Number, required: false, default: 5 })
   async getRecentRecipesByAuthor(
     @Param("authorId") authorId: string,
-    @Query("limit") limit: number = 5
+    @Query("limit") limit: number = 5,
   ) {
     return buildResponse({
       data: await this.recipesService.getRecentRecipesByAuthor(authorId, limit),

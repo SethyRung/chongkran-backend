@@ -1,20 +1,16 @@
-import {
-  ConflictException,
-  ForbiddenException,
-  Injectable,
-} from "@nestjs/common";
+import { ConflictException, ForbiddenException, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
-import { Role } from "src/common/enums/role.enum";
+import { Role } from "@/common/enums/role.enum";
 import { LoginDto } from "./dto/login.dto";
 import { AuthResponseDto } from "./dto/auth-response.dto";
 import { Model } from "mongoose";
-import { User, UserDocument } from "src/user/schemas/user.schema";
+import { User, UserDocument } from "@/user/schemas/user.schema";
 import { InjectModel } from "@nestjs/mongoose";
 import { SignupDto } from "./dto/signup.dto";
 import { JwtPayload } from "./types/JwtPayload";
-import { UserResponseDto } from "src/user/dto/user_response.dto";
+import { UserResponseDto } from "@/user/dto/user_response.dto";
 import { plainToInstance } from "class-transformer";
 
 @Injectable()
@@ -22,12 +18,12 @@ export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private jwtService: JwtService,
-    private config: ConfigService
+    private config: ConfigService,
   ) {}
 
-  async signup(dto: SignupDto): Promise<String> {
+  async signup(dto: SignupDto): Promise<string> {
     const user = await this.userModel.findOne({ email: dto.email }).exec();
-    if (!!user) throw new ConflictException("Email is alread exists");
+    if (user) throw new ConflictException("Email is alread exists");
     const hash = await bcrypt.hash(dto.password, 10);
     await this.userModel.create({ ...dto, password: hash, role: Role.User });
     return "User successfully created";
@@ -39,13 +35,12 @@ export class AuthService {
     if (!user) throw new ForbiddenException("Email or Password is invalid.");
 
     const passwordMatches = await bcrypt.compare(dto.password, user.password);
-    if (!passwordMatches)
-      throw new ForbiddenException("Email or Password is invalid.");
+    if (!passwordMatches) throw new ForbiddenException("Email or Password is invalid.");
 
     const tokens = await this.generateTokens(user._id.toString(), user.email, user.role);
     await this.userModel.updateOne(
       { _id: user._id },
-      { $set: { refreshToken: tokens.refreshToken } }
+      { $set: { refreshToken: tokens.refreshToken } },
     );
 
     return tokens;
@@ -59,11 +54,8 @@ export class AuthService {
     });
   }
 
-  async logout(userId: string): Promise<String> {
-    await this.userModel.updateOne(
-      { _id: userId },
-      { $set: { refreshToken: "" } }
-    );
+  async logout(userId: string): Promise<string> {
+    await this.userModel.updateOne({ _id: userId }, { $set: { refreshToken: "" } });
 
     return "User successfully logout";
   }
@@ -79,17 +71,13 @@ export class AuthService {
       { _id: user._id },
       {
         $set: { refreshToken: tokens.refreshToken },
-      }
+      },
     );
 
     return tokens;
   }
 
-  async generateTokens(
-    userId: string,
-    email: string,
-    role: string
-  ): Promise<AuthResponseDto> {
+  async generateTokens(userId: string, email: string, role: string): Promise<AuthResponseDto> {
     const jwtPayload: JwtPayload = {
       sub: userId,
       email: email,

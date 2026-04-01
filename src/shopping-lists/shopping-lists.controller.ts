@@ -4,8 +4,8 @@ import { CreateShoppingListDto } from "./dto/create-shopping-list.dto";
 import { UpdateShoppingListDto } from "./dto/update-shopping-list.dto";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { ShoppingListDto } from "./dto/shopping-list.dto";
-import { ApiResponse, GetCurrentUserId } from "src/common/decorators";
-import { buildResponse } from "src/common/utils/response.util";
+import { ApiResponse, GetCurrentUserId } from "@/common/decorators";
+import { buildResponse } from "@/common/utils/response.util";
 
 @ApiTags("Shopping-List")
 @Controller("/api/shopping-lists")
@@ -17,13 +17,10 @@ export class ShoppingListsController {
   @ApiResponse({ type: ShoppingListDto })
   async create(
     @GetCurrentUserId() userId: string,
-    @Body() createShoppingListDto: CreateShoppingListDto
+    @Body() createShoppingListDto: CreateShoppingListDto,
   ) {
     return buildResponse({
-      data: await this.shoppingListsService.create(
-        userId,
-        createShoppingListDto
-      ),
+      data: await this.shoppingListsService.create(userId, createShoppingListDto),
     });
   }
 
@@ -41,13 +38,10 @@ export class ShoppingListsController {
   @ApiResponse({ type: ShoppingListDto })
   async update(
     @GetCurrentUserId() userId: string,
-    @Body() updateShoppingListDto: UpdateShoppingListDto
+    @Body() updateShoppingListDto: UpdateShoppingListDto,
   ) {
     return buildResponse({
-      data: await this.shoppingListsService.update(
-        userId,
-        updateShoppingListDto
-      ),
+      data: await this.shoppingListsService.update(userId, updateShoppingListDto),
     });
   }
 

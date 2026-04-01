@@ -1,10 +1,7 @@
 import mongoose from "mongoose";
 import { config } from "dotenv";
 import { User, UserSchema } from "../user/schemas/user.schema";
-import {
-  Category,
-  CategorySchema,
-} from "../categories/schemas/category.schema";
+import { Category, CategorySchema } from "../categories/schemas/category.schema";
 import { Recipe, RecipeSchema } from "../recipes/schemas/recipe.schema";
 
 config();
@@ -95,8 +92,7 @@ const users = [
     gender: "male",
     bio: "Professional chef specializing in Italian and Mediterranean cuisine",
     expertise: ["Italian", "Mediterranean", "Pasta"],
-    avatar:
-      "https://res.cloudinary.com/dezooovvr/image/upload/v1737678454/chongkran/chef1.jpg",
+    avatar: "https://res.cloudinary.com/dezooovvr/image/upload/v1737678454/chongkran/chef1.jpg",
     website: "https://chefmarco.com",
     instagram: "@chefmarco",
     youtube: "@ChefMarcoKitchen",
@@ -115,8 +111,7 @@ const users = [
     gender: "female",
     bio: "Home cook and food blogger specializing in quick and healthy meals",
     expertise: ["Healthy", "Quick Meals", "Asian Fusion"],
-    avatar:
-      "https://res.cloudinary.com/dezooovvr/image/upload/v1737678454/chongkran/chef2.jpg",
+    avatar: "https://res.cloudinary.com/dezooovvr/image/upload/v1737678454/chongkran/chef2.jpg",
     instagram: "@emma.cooks",
     tiktok: "@emmakitchen",
     followersCount: 890,
@@ -179,8 +174,7 @@ const recipes = [
       "Season with black pepper and serve with remaining cheese.",
     ],
     tags: ["pasta", "italian", "classic", "quick"],
-    image:
-      "https://res.cloudinary.com/dezooovvr/image/upload/v1737678454/chongkran/carbonara.jpg",
+    image: "https://res.cloudinary.com/dezooovvr/image/upload/v1737678454/chongkran/carbonara.jpg",
     cookTime: 25,
     difficulty: "medium" as const,
     status: "approved" as const,
@@ -209,8 +203,7 @@ const recipes = [
       "Top with herb butter and enjoy.",
     ],
     tags: ["beef", "grilled", "dinner", "classic"],
-    image:
-      "https://res.cloudinary.com/dezooovvr/image/upload/v1737678454/chongkran/steak.jpg",
+    image: "https://res.cloudinary.com/dezooovvr/image/upload/v1737678454/chongkran/steak.jpg",
     cookTime: 30,
     difficulty: "medium" as const,
     status: "approved" as const,
@@ -308,8 +301,7 @@ const recipes = [
       "Season to taste and serve.",
     ],
     tags: ["beef", "stew", "comfort", "slow cooked"],
-    image:
-      "https://res.cloudinary.com/dezooovvr/image/upload/v1737678454/chongkran/beef_stew.jpg",
+    image: "https://res.cloudinary.com/dezooovvr/image/upload/v1737678454/chongkran/beef_stew.jpg",
     cookTime: 180,
     difficulty: "medium" as const,
     status: "approved" as const,
@@ -340,8 +332,7 @@ const recipes = [
       "Cool on sheets for 5 minutes before transferring.",
     ],
     tags: ["dessert", "cookies", "baking", "classic"],
-    image:
-      "https://res.cloudinary.com/dezooovvr/image/upload/v1737678454/chongkran/cookies.jpg",
+    image: "https://res.cloudinary.com/dezooovvr/image/upload/v1737678454/chongkran/cookies.jpg",
     cookTime: 30,
     difficulty: "easy" as const,
     status: "approved" as const,
@@ -407,8 +398,7 @@ const recipes = [
       "Garnish with sesame seeds.",
     ],
     tags: ["stir-fry", "chicken", "asian", "quick"],
-    image:
-      "https://res.cloudinary.com/dezooovvr/image/upload/v1737678454/chongkran/teriyaki.jpg",
+    image: "https://res.cloudinary.com/dezooovvr/image/upload/v1737678454/chongkran/teriyaki.jpg",
     cookTime: 25,
     difficulty: "easy" as const,
     status: "approved" as const,
@@ -441,8 +431,7 @@ async function seed() {
 
     // Seed users with hashed passwords
     console.log("Seeding users...");
-    const defaultPassword =
-      "$2b$10$rXqWvLBZxXzKZQBZY7v.H.XqYqKMPE8qFpYfK8mNJqYqKMPE8qFpY"; // Pre-hashed "Password123!"
+    const defaultPassword = "$2b$10$rXqWvLBZxXzKZQBZY7v.H.XqYqKMPE8qFpYfK8mNJqYqKMPE8qFpY"; // Pre-hashed "Password123!"
 
     const usersWithPasswords = users.map((user) => ({
       ...user,
@@ -454,31 +443,15 @@ async function seed() {
     console.log(`Created ${seededUsers.length} users`);
 
     // Get author and category IDs
-    const author1 = seededUsers.find(
-      (u) => u.email === "marco@example.com",
-    )!._id;
-    const author2 = seededUsers.find(
-      (u) => u.email === "emma@example.com",
-    )!._id;
+    const author1 = seededUsers.find((u) => u.email === "marco@example.com")!._id;
+    const author2 = seededUsers.find((u) => u.email === "emma@example.com")!._id;
 
-    const pastaCategory = seededCategories.find(
-      (c) => c.name === "Pasta & Risotto",
-    )!._id;
-    const grillCategory = seededCategories.find(
-      (c) => c.name === "Grilled & BBQ",
-    )!._id;
-    const soupCategory = seededCategories.find(
-      (c) => c.name === "Soups & Stews",
-    )!._id;
-    const saladCategory = seededCategories.find(
-      (c) => c.name === "Salads",
-    )!._id;
-    const seafoodCategory = seededCategories.find(
-      (c) => c.name === "Seafood",
-    )!._id;
-    const dessertCategory = seededCategories.find(
-      (c) => c.name === "Desserts",
-    )!._id;
+    const pastaCategory = seededCategories.find((c) => c.name === "Pasta & Risotto")!._id;
+    const grillCategory = seededCategories.find((c) => c.name === "Grilled & BBQ")!._id;
+    const soupCategory = seededCategories.find((c) => c.name === "Soups & Stews")!._id;
+    const saladCategory = seededCategories.find((c) => c.name === "Salads")!._id;
+    const seafoodCategory = seededCategories.find((c) => c.name === "Seafood")!._id;
+    const dessertCategory = seededCategories.find((c) => c.name === "Desserts")!._id;
 
     // Seed recipes with authors and categories
     console.log("Seeding recipes...");

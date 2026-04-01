@@ -67,10 +67,7 @@ export class FollowController {
   @ApiOperation({ summary: "Check if current user is following another user" })
   @ApiResponse({ status: 200, description: "Follow status retrieved successfully" })
   async isFollowing(@Request() req, @Param("followingId") followingId: string) {
-    const isFollowing = await this.followService.isFollowing(
-      req.user.sub,
-      followingId,
-    );
+    const isFollowing = await this.followService.isFollowing(req.user.sub, followingId);
     return { isFollowing };
   }
 

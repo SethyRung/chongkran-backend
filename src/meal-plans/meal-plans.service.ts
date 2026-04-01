@@ -5,19 +5,14 @@ import { MealPlanDto } from "./dto/meal-plan.dto";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
 import { MealPlan, MealPlanDocument } from "./schemas/meal-plan.schema";
-import { PaginationQueryDto } from "src/dto/pagination-query.dto";
-import { PaginatedResponseDto } from "src/dto/paginated-response.dto";
+import { PaginationQueryDto } from "@/dto/pagination-query.dto";
+import { PaginatedResponseDto } from "@/dto/paginated-response.dto";
 
 @Injectable()
 export class MealPlansService {
-  constructor(
-    @InjectModel(MealPlan.name) private mealPlanModel: Model<MealPlanDocument>
-  ) {}
+  constructor(@InjectModel(MealPlan.name) private mealPlanModel: Model<MealPlanDocument>) {}
 
-  async create(
-    userId: string,
-    createMealPlanDto: CreateMealPlanDto
-  ): Promise<MealPlanDto> {
+  async create(userId: string, createMealPlanDto: CreateMealPlanDto): Promise<MealPlanDto> {
     const created = await this.mealPlanModel.create({
       ...createMealPlanDto,
       userId: new Types.ObjectId(userId),
@@ -44,7 +39,7 @@ export class MealPlansService {
 
   async findAll(
     userId: string,
-    paginationQuery: PaginationQueryDto
+    paginationQuery: PaginationQueryDto,
   ): Promise<PaginatedResponseDto<MealPlanDto>> {
     const { page = 1, limit = 10 } = paginationQuery;
     const skip = (page - 1) * limit;
@@ -76,9 +71,7 @@ export class MealPlansService {
   }
 
   async findOne(id: string, userId: string): Promise<MealPlanDto> {
-    const mealPlan = await this.mealPlanModel
-      .findOne({ _id: id, userId })
-      .exec();
+    const mealPlan = await this.mealPlanModel.findOne({ _id: id, userId }).exec();
 
     if (!mealPlan) throw new NotFoundException("Plan not found.");
 
@@ -99,11 +92,9 @@ export class MealPlansService {
   async update(
     id: string,
     userId: string,
-    updateMealPlanDto: UpdateMealPlanDto
+    updateMealPlanDto: UpdateMealPlanDto,
   ): Promise<MealPlanDto> {
-    const mealPlan = await this.mealPlanModel
-      .findOne({ _id: id, userId })
-      .exec();
+    const mealPlan = await this.mealPlanModel.findOne({ _id: id, userId }).exec();
     if (!mealPlan) throw new NotFoundException("Plan not found");
 
     Object.assign(mealPlan, { ...updateMealPlanDto });
@@ -123,9 +114,7 @@ export class MealPlansService {
   }
 
   async remove(id: string, userId: string): Promise<string> {
-    const review = await this.mealPlanModel
-      .findById({ _id: id, userId })
-      .exec();
+    const review = await this.mealPlanModel.findById({ _id: id, userId }).exec();
     if (!review) throw new NotFoundException("Plan not found.");
 
     await review.deleteOne();

@@ -1,27 +1,14 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Query,
-} from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from "@nestjs/common";
 import { CategoriesService } from "./categories.service";
 import { CreateCategoryDto } from "./dto/create-category.dto";
 import { UpdateCategoryDto } from "./dto/update-category.dto";
 import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
-import { Roles } from "src/common/decorators/roles.decorator";
-import { Role } from "src/common/enums/role.enum";
+import { Roles } from "@/common/decorators/roles.decorator";
+import { Role } from "@/common/enums/role.enum";
 import { CategoryDto } from "./dto/category.dto";
-import {
-  ApiPaginatedResponse,
-  ApiResponse,
-  Public,
-} from "src/common/decorators";
-import { PaginationQueryDto } from "src/dto/pagination-query.dto";
-import { buildResponse } from "src/common/utils/response.util";
+import { ApiPaginatedResponse, ApiResponse, Public } from "@/common/decorators";
+import { PaginationQueryDto } from "@/dto/pagination-query.dto";
+import { buildResponse } from "@/common/utils/response.util";
 
 @ApiTags("Categories")
 @Controller("/api/categories")
@@ -60,10 +47,7 @@ export class CategoriesController {
   @Patch(":id")
   @Roles(Role.Admin)
   @ApiResponse({ type: CategoryDto })
-  async update(
-    @Param("id") id: string,
-    @Body() updateCategoryDto: UpdateCategoryDto
-  ) {
+  async update(@Param("id") id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
     return buildResponse({
       data: await this.categoriesService.update(id, updateCategoryDto),
     });

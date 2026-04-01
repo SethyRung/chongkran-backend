@@ -1,6 +1,6 @@
 import { ApiExtraModels, ApiOkResponse, getSchemaPath } from "@nestjs/swagger";
 import { applyDecorators, Type } from "@nestjs/common";
-import { BaseResponseDto } from "src/dto/base-response.dto";
+import { BaseResponseDto } from "@/dto/base-response.dto";
 
 type ApiResponseOptions<TModel> = {
   type: TModel;
@@ -14,7 +14,7 @@ const PRIMITIVE_MAP = new Map<any, string>([
 ]);
 
 export function ApiResponse<TModel extends Type<any>>(
-  options: ApiResponseOptions<TModel>
+  options: ApiResponseOptions<TModel>,
 ): MethodDecorator {
   const { type, isArray } = options;
 
@@ -48,6 +48,6 @@ export function ApiResponse<TModel extends Type<any>>(
           },
         ],
       },
-    })
+    }),
   );
 }

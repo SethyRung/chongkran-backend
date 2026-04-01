@@ -5,14 +5,12 @@ import { CategoryDto } from "./dto/category.dto";
 import { InjectModel } from "@nestjs/mongoose";
 import { Category, CategoryDocument } from "./schemas/category.schema";
 import { Model } from "mongoose";
-import { PaginatedResponseDto } from "src/dto/paginated-response.dto";
-import { PaginationQueryDto } from "src/dto/pagination-query.dto";
+import { PaginatedResponseDto } from "@/dto/paginated-response.dto";
+import { PaginationQueryDto } from "@/dto/pagination-query.dto";
 
 @Injectable()
 export class CategoriesService {
-  constructor(
-    @InjectModel(Category.name) private categoryModel: Model<CategoryDocument>
-  ) {}
+  constructor(@InjectModel(Category.name) private categoryModel: Model<CategoryDocument>) {}
 
   async create(createCategoryDto: CreateCategoryDto): Promise<CategoryDto> {
     const currentDate = new Date().toISOString();
@@ -31,18 +29,12 @@ export class CategoriesService {
     };
   }
 
-  async findAll(
-    paginationQuery: PaginationQueryDto
-  ): Promise<PaginatedResponseDto<CategoryDto>> {
+  async findAll(paginationQuery: PaginationQueryDto): Promise<PaginatedResponseDto<CategoryDto>> {
     const { page = 1, limit = 10 } = paginationQuery;
     const skip = (page - 1) * limit;
 
     const [categories, total] = await Promise.all([
-      this.categoryModel
-        .find({ isDeleted: false })
-        .skip(skip)
-        .limit(limit)
-        .exec(),
+      this.categoryModel.find({ isDeleted: false }).skip(skip).limit(limit).exec(),
       this.categoryModel.countDocuments({ isDeleted: false }).exec(),
     ]);
 
@@ -63,9 +55,7 @@ export class CategoriesService {
   }
 
   async findById(id: string): Promise<CategoryDto> {
-    const category = await this.categoryModel
-      .findOne({ _id: id, isDeleted: false })
-      .exec();
+    const category = await this.categoryModel.findOne({ _id: id, isDeleted: false }).exec();
 
     if (!category) throw new NotFoundException("Category not found.");
 
@@ -78,13 +68,8 @@ export class CategoriesService {
     };
   }
 
-  async update(
-    id: string,
-    updateCategoryDto: UpdateCategoryDto
-  ): Promise<CategoryDto> {
-    const category = await this.categoryModel
-      .findOne({ _id: id, isDeleted: false })
-      .exec();
+  async update(id: string, updateCategoryDto: UpdateCategoryDto): Promise<CategoryDto> {
+    const category = await this.categoryModel.findOne({ _id: id, isDeleted: false }).exec();
     if (!category) throw new NotFoundException("Category not found");
 
     const currentDate = new Date().toISOString();

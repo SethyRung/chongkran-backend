@@ -1,26 +1,12 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Query,
-} from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from "@nestjs/common";
 import { ReviewsService } from "./reviews.service";
 import { ReviewDto } from "./dto/review.dto";
 import { CreateReviewDto } from "./dto/create-review.dto";
 import { UpdateReviewDto } from "./dto/update-review.dto";
 import { ApiBearerAuth, ApiQuery } from "@nestjs/swagger";
-import {
-  ApiPaginatedResponse,
-  ApiResponse,
-  GetCurrentUserId,
-} from "src/common/decorators";
-import { PaginatedResponseDto } from "src/dto/paginated-response.dto";
-import { PaginationQueryDto } from "src/dto/pagination-query.dto";
-import { buildResponse } from "src/common/utils/response.util";
+import { ApiPaginatedResponse, ApiResponse, GetCurrentUserId } from "@/common/decorators";
+import { PaginationQueryDto } from "@/dto/pagination-query.dto";
+import { buildResponse } from "@/common/utils/response.util";
 
 @Controller("/api/reviews")
 export class ReviewsController {
@@ -32,7 +18,7 @@ export class ReviewsController {
   async create(
     @Param("recipeId") recipeId: string,
     @GetCurrentUserId() userId: string,
-    @Body() createReviewDto: CreateReviewDto
+    @Body() createReviewDto: CreateReviewDto,
   ) {
     return buildResponse({
       data: await this.reviewsService.create(recipeId, userId, createReviewDto),
@@ -44,10 +30,7 @@ export class ReviewsController {
   @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
   @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
   @ApiPaginatedResponse({ type: ReviewDto })
-  async findAll(
-    @Param("recipeId") recipeId: string,
-    @Query() paginationQuery: PaginationQueryDto
-  ) {
+  async findAll(@Param("recipeId") recipeId: string, @Query() paginationQuery: PaginationQueryDto) {
     return buildResponse({
       data: await this.reviewsService.findAll(recipeId, paginationQuery),
     });
@@ -66,7 +49,7 @@ export class ReviewsController {
   async update(
     @Param("id") id: string,
     @GetCurrentUserId() userId: string,
-    @Body() updateReviewDto: UpdateReviewDto
+    @Body() updateReviewDto: UpdateReviewDto,
   ) {
     return buildResponse({
       data: await this.reviewsService.update(id, userId, updateReviewDto),

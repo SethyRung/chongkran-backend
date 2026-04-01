@@ -4,13 +4,10 @@ import { Model, Types } from "mongoose";
 import { User, UserDocument } from "./schemas/user.schema";
 import { UserResponseDto } from "./dto/user_response.dto";
 import { plainToInstance } from "class-transformer";
-import {
-  AuthorRequesDocument,
-  AuthorRequest,
-} from "./schemas/author_request.schema";
+import { AuthorRequesDocument, AuthorRequest } from "./schemas/author_request.schema";
 import { UpdateUserDto } from "./dto/update_user.dto";
-import { PaginationQueryDto } from "src/dto/pagination-query.dto";
-import { PaginatedResponseDto } from "src/dto/paginated-response.dto";
+import { PaginationQueryDto } from "@/dto/pagination-query.dto";
+import { PaginatedResponseDto } from "@/dto/paginated-response.dto";
 import { Recipe, RecipeDocument } from "../recipes/schemas/recipe.schema";
 
 @Injectable()
@@ -19,15 +16,15 @@ export class UserService {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(AuthorRequest.name)
     private authorRequestModel: Model<AuthorRequesDocument>,
-    @InjectModel(Recipe.name) private recipeModel: Model<RecipeDocument>
+    @InjectModel(Recipe.name) private recipeModel: Model<RecipeDocument>,
   ) {}
   async findAll(
-    paginationQuery: PaginationQueryDto
+    paginationQuery: PaginationQueryDto,
   ): Promise<PaginatedResponseDto<UserResponseDto>> {
     const { page = 1, limit = 10 } = paginationQuery;
     const skip = (page - 1) * limit;
 
-      const users = await this.userModel
+    const users = await this.userModel
       .find({
         $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }],
       })
@@ -65,7 +62,7 @@ export class UserService {
     if (!user)
       throw new HttpException(
         "User not found. Please check the information and try again.",
-        HttpStatus.BAD_REQUEST
+        HttpStatus.BAD_REQUEST,
       );
     await this.userModel.updateOne({ _id: id }, { $set: updateUserDto }).exec();
     return "User information updated successfully.";
@@ -76,16 +73,16 @@ export class UserService {
     if (!user)
       throw new HttpException(
         "User not found. Please check the information and try again.",
-        HttpStatus.BAD_REQUEST
+        HttpStatus.BAD_REQUEST,
       );
-    await this.userModel
-      .updateOne({ _id: id }, { $set: { isDeleted: true } })
-      .exec();
+    await this.userModel.updateOne({ _id: id }, { $set: { isDeleted: true } }).exec();
     return "User deleted successfully.";
   }
 
   async becomeAuthor(id: string): Promise<string> {
-    const existing = await this.authorRequestModel.findOne({ userId: new Types.ObjectId(id) }).exec();
+    const existing = await this.authorRequestModel
+      .findOne({ userId: new Types.ObjectId(id) })
+      .exec();
     if (!existing) {
       await this.authorRequestModel.create({
         userId: new Types.ObjectId(id),
@@ -99,7 +96,7 @@ export class UserService {
   async getAuthors(
     paginationQuery: PaginationQueryDto,
     search?: string,
-    expertise?: string
+    expertise?: string,
   ): Promise<PaginatedResponseDto<UserResponseDto>> {
     const { page = 1, limit = 10 } = paginationQuery;
     const skip = (page - 1) * limit;
@@ -205,10 +202,7 @@ export class UserService {
     };
   }
 
-  async updateAuthorProfile(
-    authorId: string,
-    updateData: Partial<User>
-  ): Promise<UserResponseDto> {
+  async updateAuthorProfile(authorId: string, updateData: Partial<User>): Promise<UserResponseDto> {
     const author = await this.userModel.findOne({
       _id: authorId,
       role: "author",

@@ -10,13 +10,7 @@ import {
   Put,
   Query,
 } from "@nestjs/common";
-import {
-  ApiBearerAuth,
-  ApiBody,
-  ApiOperation,
-  ApiQuery,
-  ApiTags,
-} from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { UserService } from "./user.service";
 import { UserResponseDto } from "./dto/user_response.dto";
 import {
@@ -24,14 +18,14 @@ import {
   ApiResponse,
   GetCurrentUser,
   GetCurrentUserId,
-} from "src/common/decorators";
-import { Roles } from "src/common/decorators/roles.decorator";
-import { Role } from "src/common/enums/role.enum";
+} from "@/common/decorators";
+import { Roles } from "@/common/decorators/roles.decorator";
+import { Role } from "@/common/enums/role.enum";
 import { UpdateUserDto } from "./dto/update_user.dto";
 import { UpdateAuthorProfileDto } from "./dto/update-author-profile.dto";
 import { UserClaim } from "./dto/user_claim.dto";
-import { PaginationQueryDto } from "src/dto/pagination-query.dto";
-import { buildResponse } from "src/common/utils/response.util";
+import { PaginationQueryDto } from "@/dto/pagination-query.dto";
+import { buildResponse } from "@/common/utils/response.util";
 
 @ApiTags("Users")
 @Controller("/api/users")
@@ -69,11 +63,7 @@ export class UserController {
     @Query("expertise") expertise?: string,
   ) {
     return buildResponse({
-      data: await this.userService.getAuthors(
-        paginationQuery,
-        search,
-        expertise,
-      ),
+      data: await this.userService.getAuthors(paginationQuery, search, expertise),
     });
   }
 
@@ -92,10 +82,7 @@ export class UserController {
   @ApiQuery({ name: "q", type: String, required: true })
   @ApiQuery({ name: "limit", type: Number, required: false, default: 20 })
   @ApiResponse({ type: UserResponseDto, isArray: true })
-  async searchAuthors(
-    @Query("q") query: string,
-    @Query("limit") limit: number = 20,
-  ) {
+  async searchAuthors(@Query("q") query: string, @Query("limit") limit: number = 20) {
     return buildResponse({
       data: await this.userService.searchAuthors(query, limit),
     });
