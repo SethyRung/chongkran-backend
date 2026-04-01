@@ -13,8 +13,8 @@
     "allowSyntheticDefaultImports": true,
     "target": "ES2024",
     "sourceMap": true,
+    "rootDir": "./",
     "outDir": "./dist",
-    "rootDir": "./src",
     "paths": {
       "@/*": ["./src/*"]
     },
