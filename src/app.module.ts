@@ -6,6 +6,7 @@ import { APP_GUARD } from "@nestjs/core";
 import { AtGuard } from "./common/guards";
 import { RolesGuard } from "./common/guards/roles.guard";
 import { DatabaseModule } from "@/db/database.module";
+import { validateEnv } from "@/config/env.validation";
 import { AuthModule } from "@/modules/auth/auth.module";
 import { UserModule } from "@/modules/user/user.module";
 import { RecipesModule } from "@/modules/recipes/recipes.module";
@@ -19,7 +20,10 @@ import { FollowModule } from "@/modules/follows/follow.module";
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      validate: validateEnv,
+    }),
     DatabaseModule,
     AuthModule,
     UserModule,
