@@ -1,8 +1,8 @@
+import { randomUUID } from "crypto";
 import { Catch, ArgumentsHost, HttpException, HttpStatus } from "@nestjs/common";
 import { Response } from "express";
 
 import { StatusCode } from "@/common/enums/status-code.enum";
-import { buildResponse } from "@/common/utils/response.util";
 
 @Catch()
 export class HttpExceptionFilter {
@@ -24,7 +24,7 @@ export class HttpExceptionFilter {
         typeof res === "object"
           ? Array.isArray(res.message)
             ? res.message.join(", ")
-            : res.message ?? message
+            : (res.message ?? message)
           : res;
 
       const statusCode = exception.getStatus().toString();
@@ -33,12 +33,14 @@ export class HttpExceptionFilter {
         : StatusCode.INTERNAL_SERVER_ERROR;
     }
 
-    response.status(HttpStatus.OK).json(
-      buildResponse({
+    response.status(HttpStatus.OK).json({
+      status: {
         code,
         message,
-        data: null,
-      }),
-    );
+        requestId: randomUUID(),
+        requestTime: Date.now(),
+      },
+      data: null,
+    });
   }
 }

@@ -4,7 +4,6 @@ import { FavoriteDto } from "./dto/favorite.dto";
 import { ApiPaginatedResponse, ApiResponse, GetCurrentUserId } from "@/common/decorators";
 import { ApiBearerAuth, ApiQuery } from "@nestjs/swagger";
 import { PaginationQueryDto } from "@/dto/pagination-query.dto";
-import { buildResponse } from "@/common/utils/response.util";
 
 @Controller("/api/favorites")
 export class FavoritesController {
@@ -14,9 +13,7 @@ export class FavoritesController {
   @Post("/:recipeId")
   @ApiResponse({ type: FavoriteDto })
   async create(@Param("recipeId") recipeId: string, @GetCurrentUserId() userId: string) {
-    return buildResponse({
-      data: await this.favoritesService.create(recipeId, userId),
-    });
+    return this.favoritesService.create(recipeId, userId);
   }
 
   @ApiBearerAuth()
@@ -29,17 +26,13 @@ export class FavoritesController {
     @GetCurrentUserId() userId: string,
     @Query() paginationQuery: PaginationQueryDto,
   ) {
-    return buildResponse({
-      data: await this.favoritesService.findAll(recipeId, userId, paginationQuery),
-    });
+    return this.favoritesService.findAll(recipeId, userId, paginationQuery);
   }
 
   @ApiBearerAuth()
   @Delete("/:recipeId")
   @ApiResponse({ type: String })
   async remove(@Param("recipeId") recipeId: string, @GetCurrentUserId() userId: string) {
-    return buildResponse({
-      data: await this.favoritesService.remove(recipeId, userId),
-    });
+    return this.favoritesService.remove(recipeId, userId);
   }
 }

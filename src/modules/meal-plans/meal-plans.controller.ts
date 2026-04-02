@@ -6,7 +6,6 @@ import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { MealPlanDto } from "./dto/meal-plan.dto";
 import { ApiPaginatedResponse, ApiResponse, GetCurrentUserId } from "@/common/decorators";
 import { PaginationQueryDto } from "@/dto/pagination-query.dto";
-import { buildResponse } from "@/common/utils/response.util";
 
 @ApiTags("Meal-Plans")
 @Controller("/api/meal-plans")
@@ -17,9 +16,7 @@ export class MealPlansController {
   @Post()
   @ApiResponse({ type: MealPlanDto })
   async create(@GetCurrentUserId() userId: string, @Body() createMealPlanDto: CreateMealPlanDto) {
-    return buildResponse({
-      data: await this.mealPlansService.create(userId, createMealPlanDto),
-    });
+    return this.mealPlansService.create(userId, createMealPlanDto);
   }
 
   @ApiBearerAuth()
@@ -28,18 +25,14 @@ export class MealPlansController {
   @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
   @ApiPaginatedResponse({ type: MealPlanDto })
   async findAll(@GetCurrentUserId() userId: string, @Query() paginationQuery: PaginationQueryDto) {
-    return buildResponse({
-      data: await this.mealPlansService.findAll(userId, paginationQuery),
-    });
+    return this.mealPlansService.findAll(userId, paginationQuery);
   }
 
   @ApiBearerAuth()
   @Get(":id")
   @ApiResponse({ type: MealPlanDto })
   async findOne(@Param("id") id: string, @GetCurrentUserId() userId: string) {
-    return buildResponse({
-      data: await this.mealPlansService.findOne(id, userId),
-    });
+    return this.mealPlansService.findOne(id, userId);
   }
 
   @ApiBearerAuth()
@@ -50,17 +43,13 @@ export class MealPlansController {
     @GetCurrentUserId() userId: string,
     @Body() updateMealPlanDto: UpdateMealPlanDto,
   ) {
-    return buildResponse({
-      data: await this.mealPlansService.update(id, userId, updateMealPlanDto),
-    });
+    return this.mealPlansService.update(id, userId, updateMealPlanDto);
   }
 
   @ApiBearerAuth()
   @Delete(":id")
   @ApiResponse({ type: String })
   async remove(@Param("id") id: string, @GetCurrentUserId() userId: string) {
-    return buildResponse({
-      data: await this.mealPlansService.remove(id, userId),
-    });
+    return this.mealPlansService.remove(id, userId);
   }
 }

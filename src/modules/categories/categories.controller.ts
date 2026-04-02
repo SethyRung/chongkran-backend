@@ -8,7 +8,6 @@ import { Role } from "@/common/enums/role.enum";
 import { CategoryDto } from "./dto/category.dto";
 import { ApiPaginatedResponse, ApiResponse, Public } from "@/common/decorators";
 import { PaginationQueryDto } from "@/dto/pagination-query.dto";
-import { buildResponse } from "@/common/utils/response.util";
 
 @ApiTags("Categories")
 @Controller("/api/categories")
@@ -20,9 +19,7 @@ export class CategoriesController {
   @Roles(Role.Admin)
   @ApiResponse({ type: CategoryDto })
   async create(@Body() createCategoryDto: CreateCategoryDto) {
-    return buildResponse({
-      data: await this.categoriesService.create(createCategoryDto),
-    });
+    return this.categoriesService.create(createCategoryDto);
   }
 
   @Public()
@@ -31,16 +28,14 @@ export class CategoriesController {
   @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
   @ApiPaginatedResponse({ type: CategoryDto })
   async findAll(@Query() paginationQuery: PaginationQueryDto) {
-    return buildResponse({
-      data: await this.categoriesService.findAll(paginationQuery),
-    });
+    return this.categoriesService.findAll(paginationQuery);
   }
 
   @Public()
   @Get(":id")
   @ApiResponse({ type: CategoryDto })
   async findById(@Param("id") id: string) {
-    return buildResponse({ data: await this.categoriesService.findById(id) });
+    return this.categoriesService.findById(id);
   }
 
   @ApiBearerAuth()
@@ -48,9 +43,7 @@ export class CategoriesController {
   @Roles(Role.Admin)
   @ApiResponse({ type: CategoryDto })
   async update(@Param("id") id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
-    return buildResponse({
-      data: await this.categoriesService.update(id, updateCategoryDto),
-    });
+    return this.categoriesService.update(id, updateCategoryDto);
   }
 
   @ApiBearerAuth()
@@ -58,6 +51,6 @@ export class CategoriesController {
   @Roles(Role.Admin)
   @ApiResponse({ type: String })
   async remove(@Param("id") id: string) {
-    return buildResponse({ data: await this.categoriesService.remove(id) });
+    return this.categoriesService.remove(id);
   }
 }

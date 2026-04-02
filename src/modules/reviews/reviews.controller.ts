@@ -6,7 +6,6 @@ import { UpdateReviewDto } from "./dto/update-review.dto";
 import { ApiBearerAuth, ApiQuery } from "@nestjs/swagger";
 import { ApiPaginatedResponse, ApiResponse, GetCurrentUserId } from "@/common/decorators";
 import { PaginationQueryDto } from "@/dto/pagination-query.dto";
-import { buildResponse } from "@/common/utils/response.util";
 
 @Controller("/api/reviews")
 export class ReviewsController {
@@ -20,9 +19,7 @@ export class ReviewsController {
     @GetCurrentUserId() userId: string,
     @Body() createReviewDto: CreateReviewDto,
   ) {
-    return buildResponse({
-      data: await this.reviewsService.create(recipeId, userId, createReviewDto),
-    });
+    return this.reviewsService.create(recipeId, userId, createReviewDto);
   }
 
   @ApiBearerAuth()
@@ -31,16 +28,14 @@ export class ReviewsController {
   @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
   @ApiPaginatedResponse({ type: ReviewDto })
   async findAll(@Param("recipeId") recipeId: string, @Query() paginationQuery: PaginationQueryDto) {
-    return buildResponse({
-      data: await this.reviewsService.findAll(recipeId, paginationQuery),
-    });
+    return this.reviewsService.findAll(recipeId, paginationQuery);
   }
 
   @ApiBearerAuth()
   @Get(":id")
   @ApiResponse({ type: ReviewDto })
   async findOne(@Param("id") id: string) {
-    return buildResponse({ data: await this.reviewsService.findOne(id) });
+    return this.reviewsService.findOne(id);
   }
 
   @ApiBearerAuth()
@@ -51,17 +46,13 @@ export class ReviewsController {
     @GetCurrentUserId() userId: string,
     @Body() updateReviewDto: UpdateReviewDto,
   ) {
-    return buildResponse({
-      data: await this.reviewsService.update(id, userId, updateReviewDto),
-    });
+    return this.reviewsService.update(id, userId, updateReviewDto);
   }
 
   @ApiBearerAuth()
   @Delete(":id")
   @ApiResponse({ type: String })
   async remove(@Param("id") id: string, @GetCurrentUserId() userId: string) {
-    return buildResponse({
-      data: await this.reviewsService.remove(id, userId),
-    });
+    return this.reviewsService.remove(id, userId);
   }
 }

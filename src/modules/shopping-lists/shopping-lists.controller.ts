@@ -5,7 +5,6 @@ import { UpdateShoppingListDto } from "./dto/update-shopping-list.dto";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { ShoppingListDto } from "./dto/shopping-list.dto";
 import { ApiResponse, GetCurrentUserId } from "@/common/decorators";
-import { buildResponse } from "@/common/utils/response.util";
 
 @ApiTags("Shopping-List")
 @Controller("/api/shopping-lists")
@@ -19,18 +18,14 @@ export class ShoppingListsController {
     @GetCurrentUserId() userId: string,
     @Body() createShoppingListDto: CreateShoppingListDto,
   ) {
-    return buildResponse({
-      data: await this.shoppingListsService.create(userId, createShoppingListDto),
-    });
+    return this.shoppingListsService.create(userId, createShoppingListDto);
   }
 
   @ApiBearerAuth()
   @Get()
   @ApiResponse({ type: ShoppingListDto })
   async findOne(@GetCurrentUserId() userId: string) {
-    return buildResponse({
-      data: await this.shoppingListsService.findOne(userId),
-    });
+    return this.shoppingListsService.findOne(userId);
   }
 
   @ApiBearerAuth()
@@ -40,17 +35,13 @@ export class ShoppingListsController {
     @GetCurrentUserId() userId: string,
     @Body() updateShoppingListDto: UpdateShoppingListDto,
   ) {
-    return buildResponse({
-      data: await this.shoppingListsService.update(userId, updateShoppingListDto),
-    });
+    return this.shoppingListsService.update(userId, updateShoppingListDto);
   }
 
   @ApiBearerAuth()
   @Delete()
   @ApiResponse({ type: String })
   async remove(@GetCurrentUserId() userId: string) {
-    return buildResponse({
-      data: await this.shoppingListsService.remove(userId),
-    });
+    return this.shoppingListsService.remove(userId);
   }
 }

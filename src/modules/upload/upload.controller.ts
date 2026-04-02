@@ -5,7 +5,6 @@ import { UploadService } from "./upload.service";
 import { UploadDto } from "./dto/upload.dto";
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from "@nestjs/swagger";
 import { ApiResponse } from "@/common/decorators";
-import { buildResponse } from "@/common/utils/response.util";
 
 @ApiTags("Upload")
 @Controller("/api/upload")
@@ -29,6 +28,6 @@ export class UploadController {
   })
   @ApiResponse({ type: UploadDto })
   async uploadImage(@UploadedFile() file: Express.Multer.File) {
-    return buildResponse({ data: await this.uploadService.uploadImage(file) });
+    return this.uploadService.uploadImage(file);
   }
 }

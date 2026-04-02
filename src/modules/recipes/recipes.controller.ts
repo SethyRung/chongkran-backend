@@ -8,7 +8,6 @@ import { Roles } from "@/common/decorators/roles.decorator";
 import { ApiPaginatedResponse, ApiResponse, GetCurrentUserId, Public } from "@/common/decorators";
 import { UpdateRecipeDto } from "./dto/update_recipe.dto";
 import { PaginationQueryDto } from "@/dto/pagination-query.dto";
-import { buildResponse } from "@/common/utils/response.util";
 
 @ApiTags("Recipes")
 @Controller("/api/recipes")
@@ -21,9 +20,7 @@ export class RecipesController {
   @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
   @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
   async findAll(@Query() paginationQuery: PaginationQueryDto) {
-    return buildResponse({
-      data: await this.recipesService.findAll(paginationQuery),
-    });
+    return this.recipesService.findAll(paginationQuery);
   }
 
   @ApiBearerAuth()
@@ -42,9 +39,7 @@ export class RecipesController {
     @Query("status") status: RecipeDto["status"] & "all",
     @Query() paginationQuery: PaginationQueryDto,
   ) {
-    return buildResponse({
-      data: await this.recipesService.findMy(userId, status, paginationQuery),
-    });
+    return this.recipesService.findMy(userId, status, paginationQuery);
   }
 
   @ApiBearerAuth()
@@ -54,25 +49,21 @@ export class RecipesController {
   @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
   @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
   async findPending(@Query() paginationQuery: PaginationQueryDto) {
-    return buildResponse({
-      data: await this.recipesService.findPending(paginationQuery),
-    });
+    return this.recipesService.findPending(paginationQuery);
   }
 
   @Public()
   @Get("/:id")
   @ApiResponse({ type: RecipeDto })
   async findById(@Param("id") id: string) {
-    return buildResponse({ data: await this.recipesService.findById(id) });
+    return this.recipesService.findById(id);
   }
 
   @ApiBearerAuth()
   @Post()
   @ApiResponse({ type: RecipeDto })
   async create(@GetCurrentUserId() userId: string, @Body() createRecipe: CreateRecipeDto) {
-    return buildResponse({
-      data: await this.recipesService.create(userId, createRecipe),
-    });
+    return this.recipesService.create(userId, createRecipe);
   }
 
   @ApiBearerAuth()
@@ -82,9 +73,7 @@ export class RecipesController {
   @ApiQuery({ name: "status", enum: ["pending", "approved", "rejected"] })
   @ApiResponse({ type: RecipeDto })
   async updateStatus(@Query("id") id: string, @Query("status") status: RecipeDto["status"]) {
-    return buildResponse({
-      data: await this.recipesService.updateStatus(id, status),
-    });
+    return this.recipesService.updateStatus(id, status);
   }
 
   @ApiBearerAuth()
@@ -95,35 +84,27 @@ export class RecipesController {
     @GetCurrentUserId() userId,
     @Body() updateRecipe: UpdateRecipeDto,
   ) {
-    return buildResponse({
-      data: await this.recipesService.update(userId, id, updateRecipe),
-    });
+    return this.recipesService.update(userId, id, updateRecipe);
   }
 
   @ApiBearerAuth()
   @Delete("/:id")
   @ApiResponse({ type: String })
   async delete(@Param("id") id: string, @GetCurrentUserId() userId: string) {
-    return buildResponse({
-      data: await this.recipesService.delete(id, userId),
-    });
+    return this.recipesService.delete(id, userId);
   }
 
   @ApiBearerAuth()
   @Put("/:id/like")
   @ApiResponse({ type: String })
   async likeRecipe(@Param("id") id: string, @GetCurrentUserId() userid) {
-    return buildResponse({
-      data: await this.recipesService.likeRecipe(id, userid),
-    });
+    return this.recipesService.likeRecipe(id, userid);
   }
 
   @Put("/:id/view")
   @ApiResponse({ type: String })
   async viewRecipe(@Param("id") id: string) {
-    return buildResponse({
-      data: await this.recipesService.incrementViews(id),
-    });
+    return this.recipesService.incrementViews(id);
   }
 
   @Public()
@@ -135,9 +116,7 @@ export class RecipesController {
     @Param("authorId") authorId: string,
     @Query() paginationQuery: PaginationQueryDto,
   ) {
-    return buildResponse({
-      data: await this.recipesService.findByAuthor(authorId, paginationQuery),
-    });
+    return this.recipesService.findByAuthor(authorId, paginationQuery);
   }
 
   @Public()
@@ -148,9 +127,7 @@ export class RecipesController {
     @Param("authorId") authorId: string,
     @Query("limit") limit: number = 5,
   ) {
-    return buildResponse({
-      data: await this.recipesService.getPopularRecipesByAuthor(authorId, limit),
-    });
+    return this.recipesService.getPopularRecipesByAuthor(authorId, limit);
   }
 
   @Public()
@@ -161,17 +138,13 @@ export class RecipesController {
     @Param("authorId") authorId: string,
     @Query("limit") limit: number = 5,
   ) {
-    return buildResponse({
-      data: await this.recipesService.getRecentRecipesByAuthor(authorId, limit),
-    });
+    return this.recipesService.getRecentRecipesByAuthor(authorId, limit);
   }
 
   @Public()
   @Get("/:id/with-author")
   @ApiResponse({ type: RecipeDto })
   async findByIdWithAuthor(@Param("id") id: string) {
-    return buildResponse({
-      data: await this.recipesService.findByIdWithAuthor(id),
-    });
+    return this.recipesService.findByIdWithAuthor(id);
   }
 }

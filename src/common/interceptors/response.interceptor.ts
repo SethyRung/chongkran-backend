@@ -1,9 +1,9 @@
+import { randomUUID } from "crypto";
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from "@nestjs/common";
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
 
 import { StatusCode } from "@/common/enums/status-code.enum";
-import { buildResponse } from "@/common/utils/response.util";
 
 @Injectable()
 export class ResponseInterceptor<T> implements NestInterceptor<T, any> {
@@ -21,11 +21,15 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, any> {
           return data;
         }
 
-        return buildResponse({
-          code: StatusCode.OK,
-          message: "Success",
+        return {
+          status: {
+            code: StatusCode.OK,
+            message: "Success",
+            requestId: randomUUID(),
+            requestTime: Date.now(),
+          },
           data,
-        });
+        };
       }),
     );
   }
