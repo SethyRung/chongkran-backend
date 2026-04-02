@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 import { config } from "dotenv";
-import { User, UserSchema } from "../user/schemas/user.schema";
-import { Category, CategorySchema } from "../categories/schemas/category.schema";
-import { Recipe, RecipeSchema } from "../recipes/schemas/recipe.schema";
+import { User, UserSchema } from "@/db/schema/user.schema";
+import { Category, CategorySchema } from "@/db/schema/category.schema";
+import { Recipe, RecipeSchema } from "@/db/schema/recipe.schema";
 
 config();
 
