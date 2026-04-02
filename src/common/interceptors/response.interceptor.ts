@@ -2,14 +2,13 @@ import { randomUUID } from "crypto";
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from "@nestjs/common";
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
-
-import { StatusCode } from "@/common/enums/status-code.enum";
+import { ApiResponse, ApiResponseCode } from "@/common/types/api-response";
 
 @Injectable()
-export class ResponseInterceptor<T> implements NestInterceptor<T, any> {
-  intercept(_: ExecutionContext, next: CallHandler): Observable<any> {
+export class ResponseInterceptor<T> implements NestInterceptor<T, ApiResponse<T>> {
+  intercept(_: ExecutionContext, next: CallHandler): Observable<ApiResponse<T>> {
     return next.handle().pipe(
-      map((data) => {
+      map((data): ApiResponse<T> => {
         if (
           data &&
           typeof data === "object" &&
@@ -23,7 +22,7 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, any> {
 
         return {
           status: {
-            code: StatusCode.OK,
+            code: ApiResponseCode.Success,
             message: "Success",
             requestId: randomUUID(),
             requestTime: Date.now(),

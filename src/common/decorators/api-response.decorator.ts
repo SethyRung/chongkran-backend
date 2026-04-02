@@ -1,7 +1,7 @@
 import { applyDecorators, Type } from "@nestjs/common";
 import { ApiExtraModels, ApiOkResponse, getSchemaPath } from "@nestjs/swagger";
 
-import { StatusCode } from "../enums/status-code.enum";
+import { ApiResponseCode } from "@/common/types/api-response";
 
 type ApiResponseOptions<TModel> = {
   type: TModel;
@@ -45,8 +45,8 @@ const buildStatusSchema = () => ({
   properties: {
     code: {
       type: "string",
-      enum: Object.values(StatusCode),
-      example: StatusCode.OK,
+      enum: Object.values(ApiResponseCode),
+      example: ApiResponseCode.Success,
     },
     message: {
       type: "string",
@@ -145,6 +145,3 @@ export function ApiOkResponsePaginated<TModel extends Type<any>>(
     }),
   );
 }
-
-export const ApiResponse = ApiOkResponseWrapper;
-export const ApiPaginatedResponse = ApiOkResponsePaginated;

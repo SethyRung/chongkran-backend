@@ -5,7 +5,12 @@ import { RecipeDto } from "./dto/recipe.dto";
 import { CreateRecipeDto } from "./dto/create_recipe.dto";
 import { Role } from "@/common/enums/role.enum";
 import { Roles } from "@/common/decorators/roles.decorator";
-import { ApiPaginatedResponse, ApiResponse, GetCurrentUserId, Public } from "@/common/decorators";
+import {
+  ApiOkResponsePaginated,
+  ApiOkResponseWrapper,
+  GetCurrentUserId,
+  Public,
+} from "@/common/decorators";
 import { UpdateRecipeDto } from "./dto/update_recipe.dto";
 import { PaginationQueryDto } from "@/dto/pagination-query.dto";
 
@@ -16,7 +21,7 @@ export class RecipesController {
 
   @Public()
   @Get()
-  @ApiPaginatedResponse({ type: RecipeDto })
+  @ApiOkResponsePaginated({ type: RecipeDto })
   @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
   @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
   async findAll(@Query() paginationQuery: PaginationQueryDto) {
@@ -25,7 +30,7 @@ export class RecipesController {
 
   @ApiBearerAuth()
   @Get("/my")
-  @ApiResponse({ type: RecipeDto, isArray: true })
+  @ApiOkResponseWrapper({ type: RecipeDto, isArray: true })
   @ApiQuery({
     name: "status",
     enum: ["all", "pending", "approved", "rejected"],
@@ -45,7 +50,7 @@ export class RecipesController {
   @ApiBearerAuth()
   @Get("/pending")
   @Roles(Role.Admin)
-  @ApiResponse({ type: RecipeDto, isArray: true })
+  @ApiOkResponseWrapper({ type: RecipeDto, isArray: true })
   @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
   @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
   async findPending(@Query() paginationQuery: PaginationQueryDto) {
@@ -54,14 +59,14 @@ export class RecipesController {
 
   @Public()
   @Get("/:id")
-  @ApiResponse({ type: RecipeDto })
+  @ApiOkResponseWrapper({ type: RecipeDto })
   async findById(@Param("id") id: string) {
     return this.recipesService.findById(id);
   }
 
   @ApiBearerAuth()
   @Post()
-  @ApiResponse({ type: RecipeDto })
+  @ApiOkResponseWrapper({ type: RecipeDto })
   async create(@GetCurrentUserId() userId: string, @Body() createRecipe: CreateRecipeDto) {
     return this.recipesService.create(userId, createRecipe);
   }
@@ -71,14 +76,14 @@ export class RecipesController {
   @Put("/update-status")
   @ApiQuery({ name: "id", type: String })
   @ApiQuery({ name: "status", enum: ["pending", "approved", "rejected"] })
-  @ApiResponse({ type: RecipeDto })
+  @ApiOkResponseWrapper({ type: RecipeDto })
   async updateStatus(@Query("id") id: string, @Query("status") status: RecipeDto["status"]) {
     return this.recipesService.updateStatus(id, status);
   }
 
   @ApiBearerAuth()
   @Patch("/:id")
-  @ApiResponse({ type: RecipeDto })
+  @ApiOkResponseWrapper({ type: RecipeDto })
   async update(
     @Param("id") id: string,
     @GetCurrentUserId() userId,
@@ -89,27 +94,27 @@ export class RecipesController {
 
   @ApiBearerAuth()
   @Delete("/:id")
-  @ApiResponse({ type: String })
+  @ApiOkResponseWrapper({ type: String })
   async delete(@Param("id") id: string, @GetCurrentUserId() userId: string) {
     return this.recipesService.delete(id, userId);
   }
 
   @ApiBearerAuth()
   @Put("/:id/like")
-  @ApiResponse({ type: String })
+  @ApiOkResponseWrapper({ type: String })
   async likeRecipe(@Param("id") id: string, @GetCurrentUserId() userid) {
     return this.recipesService.likeRecipe(id, userid);
   }
 
   @Put("/:id/view")
-  @ApiResponse({ type: String })
+  @ApiOkResponseWrapper({ type: String })
   async viewRecipe(@Param("id") id: string) {
     return this.recipesService.incrementViews(id);
   }
 
   @Public()
   @Get("/author/:authorId")
-  @ApiPaginatedResponse({ type: RecipeDto })
+  @ApiOkResponsePaginated({ type: RecipeDto })
   @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
   @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
   async findByAuthor(
@@ -121,7 +126,7 @@ export class RecipesController {
 
   @Public()
   @Get("/author/:authorId/popular")
-  @ApiResponse({ type: RecipeDto, isArray: true })
+  @ApiOkResponseWrapper({ type: RecipeDto, isArray: true })
   @ApiQuery({ name: "limit", type: Number, required: false, default: 5 })
   async getPopularRecipesByAuthor(
     @Param("authorId") authorId: string,
@@ -132,7 +137,7 @@ export class RecipesController {
 
   @Public()
   @Get("/author/:authorId/recent")
-  @ApiResponse({ type: RecipeDto, isArray: true })
+  @ApiOkResponseWrapper({ type: RecipeDto, isArray: true })
   @ApiQuery({ name: "limit", type: Number, required: false, default: 5 })
   async getRecentRecipesByAuthor(
     @Param("authorId") authorId: string,
@@ -143,7 +148,7 @@ export class RecipesController {
 
   @Public()
   @Get("/:id/with-author")
-  @ApiResponse({ type: RecipeDto })
+  @ApiOkResponseWrapper({ type: RecipeDto })
   async findByIdWithAuthor(@Param("id") id: string) {
     return this.recipesService.findByIdWithAuthor(id);
   }

@@ -6,7 +6,7 @@ import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { Roles } from "@/common/decorators/roles.decorator";
 import { Role } from "@/common/enums/role.enum";
 import { CategoryDto } from "./dto/category.dto";
-import { ApiPaginatedResponse, ApiResponse, Public } from "@/common/decorators";
+import { ApiOkResponsePaginated, ApiOkResponseWrapper, Public } from "@/common/decorators";
 import { PaginationQueryDto } from "@/dto/pagination-query.dto";
 
 @ApiTags("Categories")
@@ -17,7 +17,7 @@ export class CategoriesController {
   @ApiBearerAuth()
   @Post()
   @Roles(Role.Admin)
-  @ApiResponse({ type: CategoryDto })
+  @ApiOkResponseWrapper({ type: CategoryDto })
   async create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoriesService.create(createCategoryDto);
   }
@@ -26,14 +26,14 @@ export class CategoriesController {
   @Get()
   @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
   @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
-  @ApiPaginatedResponse({ type: CategoryDto })
+  @ApiOkResponsePaginated({ type: CategoryDto })
   async findAll(@Query() paginationQuery: PaginationQueryDto) {
     return this.categoriesService.findAll(paginationQuery);
   }
 
   @Public()
   @Get(":id")
-  @ApiResponse({ type: CategoryDto })
+  @ApiOkResponseWrapper({ type: CategoryDto })
   async findById(@Param("id") id: string) {
     return this.categoriesService.findById(id);
   }
@@ -41,7 +41,7 @@ export class CategoriesController {
   @ApiBearerAuth()
   @Patch(":id")
   @Roles(Role.Admin)
-  @ApiResponse({ type: CategoryDto })
+  @ApiOkResponseWrapper({ type: CategoryDto })
   async update(@Param("id") id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
     return this.categoriesService.update(id, updateCategoryDto);
   }
@@ -49,7 +49,7 @@ export class CategoriesController {
   @ApiBearerAuth()
   @Delete(":id")
   @Roles(Role.Admin)
-  @ApiResponse({ type: String })
+  @ApiOkResponseWrapper({ type: String })
   async remove(@Param("id") id: string) {
     return this.categoriesService.remove(id);
   }

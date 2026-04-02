@@ -4,7 +4,11 @@ import { CreateMealPlanDto } from "./dto/create-meal-plan.dto";
 import { UpdateMealPlanDto } from "./dto/update-meal-plan.dto";
 import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { MealPlanDto } from "./dto/meal-plan.dto";
-import { ApiPaginatedResponse, ApiResponse, GetCurrentUserId } from "@/common/decorators";
+import {
+  ApiOkResponsePaginated,
+  ApiOkResponseWrapper,
+  GetCurrentUserId,
+} from "@/common/decorators";
 import { PaginationQueryDto } from "@/dto/pagination-query.dto";
 
 @ApiTags("Meal-Plans")
@@ -14,7 +18,7 @@ export class MealPlansController {
 
   @ApiBearerAuth()
   @Post()
-  @ApiResponse({ type: MealPlanDto })
+  @ApiOkResponseWrapper({ type: MealPlanDto })
   async create(@GetCurrentUserId() userId: string, @Body() createMealPlanDto: CreateMealPlanDto) {
     return this.mealPlansService.create(userId, createMealPlanDto);
   }
@@ -23,21 +27,21 @@ export class MealPlansController {
   @Get()
   @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
   @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
-  @ApiPaginatedResponse({ type: MealPlanDto })
+  @ApiOkResponsePaginated({ type: MealPlanDto })
   async findAll(@GetCurrentUserId() userId: string, @Query() paginationQuery: PaginationQueryDto) {
     return this.mealPlansService.findAll(userId, paginationQuery);
   }
 
   @ApiBearerAuth()
   @Get(":id")
-  @ApiResponse({ type: MealPlanDto })
+  @ApiOkResponseWrapper({ type: MealPlanDto })
   async findOne(@Param("id") id: string, @GetCurrentUserId() userId: string) {
     return this.mealPlansService.findOne(id, userId);
   }
 
   @ApiBearerAuth()
   @Patch(":id")
-  @ApiResponse({ type: MealPlanDto })
+  @ApiOkResponseWrapper({ type: MealPlanDto })
   async update(
     @Param("id") id: string,
     @GetCurrentUserId() userId: string,
@@ -48,7 +52,7 @@ export class MealPlansController {
 
   @ApiBearerAuth()
   @Delete(":id")
-  @ApiResponse({ type: String })
+  @ApiOkResponseWrapper({ type: String })
   async remove(@Param("id") id: string, @GetCurrentUserId() userId: string) {
     return this.mealPlansService.remove(id, userId);
   }

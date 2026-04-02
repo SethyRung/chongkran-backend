@@ -14,8 +14,8 @@ import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiTags } from "@nestjs
 import { UserService } from "./user.service";
 import { UserResponseDto } from "./dto/user_response.dto";
 import {
-  ApiPaginatedResponse,
-  ApiResponse,
+  ApiOkResponsePaginated,
+  ApiOkResponseWrapper,
   GetCurrentUser,
   GetCurrentUserId,
 } from "@/common/decorators";
@@ -35,14 +35,14 @@ export class UserController {
   @Get()
   @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
   @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
-  @ApiPaginatedResponse({ type: UserResponseDto })
+  @ApiOkResponsePaginated({ type: UserResponseDto })
   async findAll(@Query() paginationQuery: PaginationQueryDto) {
     return this.userService.findAll(paginationQuery);
   }
 
   @ApiBearerAuth()
   @Put("/become-author")
-  @ApiResponse({ type: String })
+  @ApiOkResponseWrapper({ type: String })
   async becomeAuthor(@GetCurrentUserId() id: string) {
     return this.userService.becomeAuthor(id);
   }
@@ -53,7 +53,7 @@ export class UserController {
   @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
   @ApiQuery({ name: "search", type: String, required: false })
   @ApiQuery({ name: "expertise", type: String, required: false })
-  @ApiPaginatedResponse({ type: UserResponseDto })
+  @ApiOkResponsePaginated({ type: UserResponseDto })
   async getAuthors(
     @Query() paginationQuery: PaginationQueryDto,
     @Query("search") search?: string,
@@ -65,7 +65,7 @@ export class UserController {
   @ApiBearerAuth()
   @Get("/authors/popular")
   @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
-  @ApiResponse({ type: UserResponseDto, isArray: true })
+  @ApiOkResponseWrapper({ type: UserResponseDto, isArray: true })
   async getPopularAuthors(@Query("limit") limit: number = 10) {
     return this.userService.getPopularAuthors(limit);
   }
@@ -74,21 +74,21 @@ export class UserController {
   @Get("/authors/search")
   @ApiQuery({ name: "q", type: String, required: true })
   @ApiQuery({ name: "limit", type: Number, required: false, default: 20 })
-  @ApiResponse({ type: UserResponseDto, isArray: true })
+  @ApiOkResponseWrapper({ type: UserResponseDto, isArray: true })
   async searchAuthors(@Query("q") query: string, @Query("limit") limit: number = 20) {
     return this.userService.searchAuthors(query, limit);
   }
 
   @ApiBearerAuth()
   @Get("/authors/:id")
-  @ApiResponse({ type: UserResponseDto })
+  @ApiOkResponseWrapper({ type: UserResponseDto })
   async getAuthorById(@Param("id") id: string) {
     return this.userService.getAuthorById(id);
   }
 
   @ApiBearerAuth()
   @Get("/authors/:id/stats")
-  @ApiResponse({ type: Object })
+  @ApiOkResponseWrapper({ type: Object })
   async getAuthorStats(@Param("id") id: string) {
     return this.userService.getAuthorStats(id);
   }
@@ -97,7 +97,7 @@ export class UserController {
   @Patch("/authors/:id/profile")
   @ApiOperation({ summary: "Update author profile" })
   @ApiBody({ type: UpdateAuthorProfileDto })
-  @ApiResponse({ type: UserResponseDto })
+  @ApiOkResponseWrapper({ type: UserResponseDto })
   async updateAuthorProfile(
     @GetCurrentUser() currentUser: UserClaim,
     @Param("id") id: string,
@@ -115,14 +115,14 @@ export class UserController {
   @ApiBearerAuth()
   @Get("/:id")
   @Roles(Role.Admin)
-  @ApiResponse({ type: UserResponseDto })
+  @ApiOkResponseWrapper({ type: UserResponseDto })
   async findById(@Param("id") id: string) {
     return this.userService.findById(id);
   }
 
   @ApiBearerAuth()
   @Patch("/:id")
-  @ApiResponse({ type: String })
+  @ApiOkResponseWrapper({ type: String })
   async updateById(
     @GetCurrentUser()
     currentUser: UserClaim,
@@ -140,7 +140,7 @@ export class UserController {
   @ApiBearerAuth()
   @Delete("/:id")
   @Roles(Role.Admin)
-  @ApiResponse({ type: String })
+  @ApiOkResponseWrapper({ type: String })
   async deleteById(@Param("id") id: string) {
     return this.userService.deleteById(id);
   }

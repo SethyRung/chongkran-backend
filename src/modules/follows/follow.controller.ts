@@ -10,7 +10,7 @@ import {
   HttpStatus,
   Body,
 } from "@nestjs/common";
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from "@nestjs/swagger";
+import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
 import { FollowService } from "./follow.service";
 import { FollowDto, UnfollowDto } from "./dto/follow.dto";
 
@@ -22,8 +22,6 @@ export class FollowController {
 
   @Post()
   @ApiOperation({ summary: "Follow a user" })
-  @ApiResponse({ status: 201, description: "Successfully followed user" })
-  @ApiResponse({ status: 400, description: "Bad request" })
   async follow(@Request() req, @Body() followDto: FollowDto) {
     return this.followService.follow(req.user.sub, followDto);
   }
@@ -31,8 +29,6 @@ export class FollowController {
   @Delete()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Unfollow a user" })
-  @ApiResponse({ status: 200, description: "Successfully unfollowed user" })
-  @ApiResponse({ status: 400, description: "Bad request" })
   async unfollow(@Request() req, @Body() unfollowDto: UnfollowDto) {
     await this.followService.unfollow(req.user.sub, unfollowDto);
     return { message: "Successfully unfollowed user" };
@@ -40,7 +36,6 @@ export class FollowController {
 
   @Get("followers/:userId")
   @ApiOperation({ summary: "Get user's followers" })
-  @ApiResponse({ status: 200, description: "Followers retrieved successfully" })
   async getFollowers(
     @Param("userId") userId: string,
     @Query("page") page: number = 1,
@@ -51,7 +46,6 @@ export class FollowController {
 
   @Get("following/:userId")
   @ApiOperation({ summary: "Get users that user is following" })
-  @ApiResponse({ status: 200, description: "Following list retrieved successfully" })
   async getFollowing(
     @Param("userId") userId: string,
     @Query("page") page: number = 1,
@@ -62,7 +56,6 @@ export class FollowController {
 
   @Get("is-following/:followingId")
   @ApiOperation({ summary: "Check if current user is following another user" })
-  @ApiResponse({ status: 200, description: "Follow status retrieved successfully" })
   async isFollowing(@Request() req, @Param("followingId") followingId: string) {
     const isFollowing = await this.followService.isFollowing(req.user.sub, followingId);
     return { isFollowing };
@@ -70,7 +63,6 @@ export class FollowController {
 
   @Get("stats/:userId")
   @ApiOperation({ summary: "Get user's follow statistics" })
-  @ApiResponse({ status: 200, description: "Follow statistics retrieved successfully" })
   async getFollowStats(@Param("userId") userId: string) {
     return this.followService.getFollowStats(userId);
   }

@@ -4,7 +4,11 @@ import { ReviewDto } from "./dto/review.dto";
 import { CreateReviewDto } from "./dto/create-review.dto";
 import { UpdateReviewDto } from "./dto/update-review.dto";
 import { ApiBearerAuth, ApiQuery } from "@nestjs/swagger";
-import { ApiPaginatedResponse, ApiResponse, GetCurrentUserId } from "@/common/decorators";
+import {
+  ApiOkResponsePaginated,
+  ApiOkResponseWrapper,
+  GetCurrentUserId,
+} from "@/common/decorators";
 import { PaginationQueryDto } from "@/dto/pagination-query.dto";
 
 @Controller("/api/reviews")
@@ -13,7 +17,7 @@ export class ReviewsController {
 
   @ApiBearerAuth()
   @Post("/:recipeId")
-  @ApiResponse({ type: ReviewDto })
+  @ApiOkResponseWrapper({ type: ReviewDto })
   async create(
     @Param("recipeId") recipeId: string,
     @GetCurrentUserId() userId: string,
@@ -26,21 +30,21 @@ export class ReviewsController {
   @Get("/recipe/:recipeId")
   @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
   @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
-  @ApiPaginatedResponse({ type: ReviewDto })
+  @ApiOkResponsePaginated({ type: ReviewDto })
   async findAll(@Param("recipeId") recipeId: string, @Query() paginationQuery: PaginationQueryDto) {
     return this.reviewsService.findAll(recipeId, paginationQuery);
   }
 
   @ApiBearerAuth()
   @Get(":id")
-  @ApiResponse({ type: ReviewDto })
+  @ApiOkResponseWrapper({ type: ReviewDto })
   async findOne(@Param("id") id: string) {
     return this.reviewsService.findOne(id);
   }
 
   @ApiBearerAuth()
   @Patch(":id")
-  @ApiResponse({ type: ReviewDto })
+  @ApiOkResponseWrapper({ type: ReviewDto })
   async update(
     @Param("id") id: string,
     @GetCurrentUserId() userId: string,
@@ -51,7 +55,7 @@ export class ReviewsController {
 
   @ApiBearerAuth()
   @Delete(":id")
-  @ApiResponse({ type: String })
+  @ApiOkResponseWrapper({ type: String })
   async remove(@Param("id") id: string, @GetCurrentUserId() userId: string) {
     return this.reviewsService.remove(id, userId);
   }

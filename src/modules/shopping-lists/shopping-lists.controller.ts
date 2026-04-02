@@ -4,7 +4,7 @@ import { CreateShoppingListDto } from "./dto/create-shopping-list.dto";
 import { UpdateShoppingListDto } from "./dto/update-shopping-list.dto";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { ShoppingListDto } from "./dto/shopping-list.dto";
-import { ApiResponse, GetCurrentUserId } from "@/common/decorators";
+import { ApiOkResponseWrapper, GetCurrentUserId } from "@/common/decorators";
 
 @ApiTags("Shopping-List")
 @Controller("/api/shopping-lists")
@@ -13,7 +13,7 @@ export class ShoppingListsController {
 
   @ApiBearerAuth()
   @Post()
-  @ApiResponse({ type: ShoppingListDto })
+  @ApiOkResponseWrapper({ type: ShoppingListDto })
   async create(
     @GetCurrentUserId() userId: string,
     @Body() createShoppingListDto: CreateShoppingListDto,
@@ -23,14 +23,14 @@ export class ShoppingListsController {
 
   @ApiBearerAuth()
   @Get()
-  @ApiResponse({ type: ShoppingListDto })
+  @ApiOkResponseWrapper({ type: ShoppingListDto })
   async findOne(@GetCurrentUserId() userId: string) {
     return this.shoppingListsService.findOne(userId);
   }
 
   @ApiBearerAuth()
   @Patch()
-  @ApiResponse({ type: ShoppingListDto })
+  @ApiOkResponseWrapper({ type: ShoppingListDto })
   async update(
     @GetCurrentUserId() userId: string,
     @Body() updateShoppingListDto: UpdateShoppingListDto,
@@ -40,7 +40,7 @@ export class ShoppingListsController {
 
   @ApiBearerAuth()
   @Delete()
-  @ApiResponse({ type: String })
+  @ApiOkResponseWrapper({ type: String })
   async remove(@GetCurrentUserId() userId: string) {
     return this.shoppingListsService.remove(userId);
   }
