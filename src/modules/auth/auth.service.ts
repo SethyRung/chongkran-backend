@@ -1,4 +1,4 @@
-import { ConflictException, ForbiddenException, Injectable } from "@nestjs/common";
+import { ConflictException, ForbiddenException, Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
@@ -60,11 +60,26 @@ export class AuthService {
     return "User successfully logout";
   }
 
-  async refresh(userId: string, rt: string): Promise<AuthResponseDto> {
+  async refresh(refreshToken: string): Promise<AuthResponseDto> {
+    const rtSecret = this.config.get<string>("REFRESH_TOKEN_SECRET");
+    if (!rtSecret) {
+      throw new Error("Missing JWT configuration values");
+    }
+
+    let payload: JwtPayload;
+    try {
+      payload = await this.jwtService.verifyAsync<JwtPayload>(refreshToken, {
+        secret: rtSecret,
+      });
+    } catch {
+      throw new UnauthorizedException("Invalid refresh token");
+    }
+
     const user = await this.userModel.findOne({
-      $and: [{ _id: userId }, { refreshToken: rt }],
+      _id: payload.sub,
+      refreshToken,
     });
-    if (!user) throw new ForbiddenException("Access Denied");
+    if (!user) throw new UnauthorizedException("Invalid refresh token");
 
     const tokens = await this.generateTokens(user._id.toString(), user.email, user.role);
     await this.userModel.updateOne(

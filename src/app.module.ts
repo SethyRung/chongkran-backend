@@ -2,11 +2,13 @@ import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
-import { APP_GUARD } from "@nestjs/core";
-import { AtGuard } from "./common/guards";
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
+import { JwtAuthGuard } from "./common/guards/jwt-auth.guard";
 import { RolesGuard } from "./common/guards/roles.guard";
 import { DatabaseModule } from "@/db/database.module";
 import { validateEnv } from "@/config/env.validation";
+import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
+import { ResponseInterceptor } from "./common/interceptors/response.interceptor";
 import { AuthModule } from "@/modules/auth/auth.module";
 import { UserModule } from "@/modules/user/user.module";
 import { RecipesModule } from "@/modules/recipes/recipes.module";
@@ -40,8 +42,16 @@ import { FollowModule } from "@/modules/follows/follow.module";
   providers: [
     AppService,
     {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseInterceptor,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+    {
       provide: APP_GUARD,
-      useClass: AtGuard,
+      useClass: JwtAuthGuard,
     },
     {
       provide: APP_GUARD,

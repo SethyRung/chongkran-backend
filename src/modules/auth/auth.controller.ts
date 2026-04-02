@@ -1,13 +1,13 @@
-import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
-import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Get, Post } from "@nestjs/common";
+import { ApiBearerAuth, ApiBody, ApiTags } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
-import { ApiResponse, GetCurrentUser, GetCurrentUserId, Public } from "@/common/decorators";
-import { RtGuard } from "@/common/guards";
+import { ApiResponse, GetCurrentUserId, Public } from "@/common/decorators";
 import { AuthResponseDto } from "./dto/auth-response.dto";
 import { SignupDto } from "./dto/signup.dto";
 import { LoginDto } from "./dto/login.dto";
 import { UserResponseDto } from "@/modules/user/dto/user_response.dto";
 import { buildResponse } from "@/common/utils/response.util";
+import { RefreshDto } from "./dto/refresh.dto";
 
 @ApiTags("Auth")
 @Controller("/api/auth")
@@ -43,16 +43,12 @@ export class AuthController {
   }
 
   @Public()
-  @ApiBearerAuth()
-  @UseGuards(RtGuard)
-  @Get("refresh")
+  @Post("refresh")
+  @ApiBody({ type: RefreshDto })
   @ApiResponse({ type: AuthResponseDto })
-  async refresh(
-    @GetCurrentUserId() userId: string,
-    @GetCurrentUser("refreshToken") refreshToken: string,
-  ) {
+  async refresh(@Body() dto: RefreshDto) {
     return buildResponse({
-      data: await this.authService.refresh(userId, refreshToken),
+      data: await this.authService.refresh(dto.refreshToken),
     });
   }
 }

@@ -5,7 +5,6 @@ import {
   Get,
   Param,
   Query,
-  UseGuards,
   Request,
   HttpCode,
   HttpStatus,
@@ -14,11 +13,9 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from "@nestjs/swagger";
 import { FollowService } from "./follow.service";
 import { FollowDto, UnfollowDto } from "./dto/follow.dto";
-import { AtGuard } from "@/common/guards/at.guard";
 
 @ApiTags("follows")
 @Controller("follows")
-@UseGuards(AtGuard)
 @ApiBearerAuth()
 export class FollowController {
   constructor(private readonly followService: FollowService) {}
