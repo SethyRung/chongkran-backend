@@ -29,6 +29,16 @@ cd chongkran-backend
 pnpm install
 ```
 
+### Database Seeding
+
+Make sure `DATABASE_URL` points to a reachable MongoDB instance, then run:
+
+```bash
+pnpm seed
+```
+
+The seed script writes directly to MongoDB, hashes the default seed password with bcrypt, and upserts the seeded user accounts so rerunning it repairs old bad hashes. It also recreates the pending author requests for the author seed accounts. `SEED_DEFAULT_PASSWORD` overrides the login password and defaults to `Password123!`.
+
 ### Environment Variables
 
 Create a .env file:
@@ -126,7 +136,7 @@ src/
 ```js
 {
   status: {
-    code: string,
+    code: string, // ApiResponseCode
     message: string,
     requestId: string,
     requestTime: number,
