@@ -1,14 +1,18 @@
 import { Controller, Get } from "@nestjs/common";
+import { ApiTags } from "@nestjs/swagger";
 import { AppService } from "./app.service";
-import { ApiBearerAuth } from "@nestjs/swagger";
+import { Public } from "@/common/decorators/public.decorator";
+import { ApiOkResponseWrapper } from "@/common/decorators";
 
-@ApiBearerAuth()
+@ApiTags("App")
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @Public()
+  @Get("ping")
+  @ApiOkResponseWrapper({ type: String })
+  ping(): string {
+    return this.appService.ping();
   }
 }
