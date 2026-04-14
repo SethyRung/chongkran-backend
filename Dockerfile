@@ -3,8 +3,8 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Install pnpm globally
-RUN npm install -g pnpm
+# Enable corepack for pnpm support
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # Copy lockfile and manifest
 COPY package.json pnpm-lock.yaml ./
@@ -24,8 +24,8 @@ FROM node:22-alpine AS runtime
 
 WORKDIR /app
 
-# Install pnpm globally
-RUN npm install -g pnpm
+# Enable corepack for pnpm support
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # Copy lockfile and manifest
 COPY package.json pnpm-lock.yaml ./
@@ -41,4 +41,4 @@ COPY .env .
 
 EXPOSE 8080
 
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/src/main"]
