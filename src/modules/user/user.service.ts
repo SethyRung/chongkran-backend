@@ -5,6 +5,7 @@ import { User, UserDocument } from "@/db/schema/user.schema";
 import { UserResponseDto } from "./dto/user_response.dto";
 import { plainToInstance } from "class-transformer";
 import { AuthorRequesDocument, AuthorRequest } from "@/db/schema/author_request.schema";
+import { AuthorRequestResponseDto } from "./dto/author-request-response.dto";
 import { UpdateUserDto } from "./dto/update_user.dto";
 import { PaginationQueryDto } from "@/dto/pagination-query.dto";
 import { PaginatedResponseDto } from "@/dto/paginated-response.dto";
@@ -91,6 +92,101 @@ export class UserService {
     }
 
     return "Waiting for approval";
+  }
+
+  async getAuthorRequests(
+    paginationQuery: PaginationQueryDto,
+    status?: "pending" | "approved" | "rejected",
+  ): Promise<PaginatedResponseDto<AuthorRequestResponseDto>> {
+    const { page = 1, limit = 10 } = paginationQuery;
+    const skip = (page - 1) * limit;
+
+    const query: any = {};
+    if (status) query.status = status;
+
+    const requests = await this.authorRequestModel
+      .find(query)
+      .populate("userId", "_id firstName lastName email avatar")
+      .skip(skip)
+      .limit(limit)
+      .sort({ _id: -1 })
+      .exec();
+
+    const total = await this.authorRequestModel.countDocuments(query).exec();
+
+    const content = requests.map((req) => {
+      const user = req.userId as any;
+      return plainToInstance(
+        AuthorRequestResponseDto,
+        {
+          id: req._id.toString(),
+          status: req.status,
+          user: {
+            id: user._id.toString(),
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            avatar: user.avatar,
+          },
+        },
+        { excludeExtraneousValues: true },
+      );
+    });
+
+    return { content, total, page, lastPage: Math.ceil(total / limit) };
+  }
+
+  async approveAuthorRequest(requestId: string): Promise<string> {
+    const request = await this.authorRequestModel.findById(requestId).exec();
+    if (!request) {
+      throw new HttpException(
+        "Author request not found.",
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (request.status === "approved") {
+      throw new HttpException(
+        "This request has already been approved.",
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    await this.authorRequestModel.updateOne(
+      { _id: requestId },
+      { $set: { status: "approved" } },
+    );
+
+    await this.userModel.updateOne(
+      { _id: request.userId },
+      { $set: { role: "author" } },
+    );
+
+    return "Author request approved successfully.";
+  }
+
+  async rejectAuthorRequest(requestId: string): Promise<string> {
+    const request = await this.authorRequestModel.findById(requestId).exec();
+    if (!request) {
+      throw new HttpException(
+        "Author request not found.",
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (request.status === "rejected") {
+      throw new HttpException(
+        "This request has already been rejected.",
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    await this.authorRequestModel.updateOne(
+      { _id: requestId },
+      { $set: { status: "rejected" } },
+    );
+
+    return "Author request rejected successfully.";
   }
 
   async getAuthors(

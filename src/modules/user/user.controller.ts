@@ -13,6 +13,7 @@ import {
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { UserService } from "./user.service";
 import { UserResponseDto } from "./dto/user_response.dto";
+import { AuthorRequestResponseDto } from "./dto/author-request-response.dto";
 import {
   ApiOkResponsePaginated,
   ApiOkResponseWrapper,
@@ -46,6 +47,36 @@ export class UserController {
   @ApiOkResponseWrapper({ type: String })
   async becomeAuthor(@GetCurrentUserId() id: string) {
     return this.userService.becomeAuthor(id);
+  }
+
+  @ApiBearerAuth()
+  @Get("/authors/requests")
+  @Roles(Role.Admin)
+  @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
+  @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
+  @ApiQuery({ name: "status", type: String, required: false, enum: ["pending", "approved", "rejected"] })
+  @ApiOkResponsePaginated({ type: AuthorRequestResponseDto })
+  async getAuthorRequests(
+    @Query() paginationQuery: PaginationQueryDto,
+    @Query("status") status?: "pending" | "approved" | "rejected",
+  ) {
+    return this.userService.getAuthorRequests(paginationQuery, status);
+  }
+
+  @ApiBearerAuth()
+  @Patch("/authors/requests/:id/approve")
+  @Roles(Role.Admin)
+  @ApiOkResponseWrapper({ type: String })
+  async approveAuthorRequest(@Param("id") id: string) {
+    return this.userService.approveAuthorRequest(id);
+  }
+
+  @ApiBearerAuth()
+  @Patch("/authors/requests/:id/reject")
+  @Roles(Role.Admin)
+  @ApiOkResponseWrapper({ type: String })
+  async rejectAuthorRequest(@Param("id") id: string) {
+    return this.userService.rejectAuthorRequest(id);
   }
 
   @ApiBearerAuth()
