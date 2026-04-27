@@ -408,8 +408,6 @@ const recipes = [
 
 async function seed() {
   try {
-    console.info("DATABASE_URL: ", DATABASE_URL);
-
     // Connect to MongoDB
     await mongoose.connect(DATABASE_URL);
     console.log("Connected to MongoDB");

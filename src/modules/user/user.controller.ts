@@ -33,6 +33,7 @@ export class UserController {
 
   @ApiBearerAuth()
   @Get()
+  @Roles(Role.Admin)
   @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
   @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
   @ApiOkResponsePaginated({ type: UserResponseDto })

@@ -53,7 +53,6 @@ export class AuthService {
 
   async findCurrentUser(id: string): Promise<UserResponseDto> {
     const user = await this.userModel.findById(id);
-    console.log(user);
     return plainToInstance(UserResponseDto, user, {
       excludeExtraneousValues: true,
     });
