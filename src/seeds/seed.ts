@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { config } from "dotenv";
+import bcrypt from "bcrypt";
 import { User, UserSchema } from "@/db/schema/user.schema";
 import { Category, CategorySchema } from "@/db/schema/category.schema";
 import { Recipe, RecipeSchema } from "@/db/schema/recipe.schema";
@@ -431,7 +432,7 @@ async function seed() {
 
     // Seed users with hashed passwords
     console.log("Seeding users...");
-    const defaultPassword = "$2b$10$rXqWvLBZxXzKZQBZY7v.H.XqYqKMPE8qFpYfK8mNJqYqKMPE8qFpY"; // Pre-hashed "Password123!"
+    const defaultPassword = await bcrypt.hash("Password123!", 10);
 
     const usersWithPasswords = users.map((user) => ({
       ...user,
