@@ -25,8 +25,7 @@ export class MealPlansController {
 
   @ApiBearerAuth()
   @Get()
-  @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
-  @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
+
   @ApiOkResponsePaginated({ type: MealPlanDto })
   async findAll(@GetCurrentUserId() userId: string, @Query() paginationQuery: PaginationQueryDto) {
     return this.mealPlansService.findAll(userId, paginationQuery);

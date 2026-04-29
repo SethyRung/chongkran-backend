@@ -24,8 +24,7 @@ export class CategoriesController {
 
   @Public()
   @Get()
-  @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
-  @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
+
   @ApiOkResponsePaginated({ type: CategoryDto })
   async findAll(@Query() paginationQuery: PaginationQueryDto) {
     return this.categoriesService.findAll(paginationQuery);

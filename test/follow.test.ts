@@ -70,18 +70,19 @@ describe("FollowController", () => {
     it("should return list of followers for a user", async () => {
       const userId = "507f1f77bcf86cd799439011";
       const mockFollowers = {
-        followers: [
+        data: [
           { id: "1", firstName: "John", lastName: "Doe", avatar: "avatar1.jpg" },
           { id: "2", firstName: "Jane", lastName: "Smith", avatar: "avatar2.jpg" },
         ],
-        pagination: { page: 1, limit: 10, total: 2, pages: 1 },
+        meta: { total: 2, limit: 10, offset: 0 },
+        __paginated: true,
       };
 
-      jest.spyOn(service, "getFollowers").mockResolvedValue(mockFollowers);
+      jest.spyOn(service, "getFollowers").mockResolvedValue(mockFollowers as any);
 
-      const result = await controller.getFollowers(userId);
+      const result = await controller.getFollowers(userId, { offset: 0, limit: 10 });
 
-      expect(service.getFollowers).toHaveBeenCalledWith(userId, 1, 10);
+      expect(service.getFollowers).toHaveBeenCalledWith(userId, { offset: 0, limit: 10 });
       expect(result).toEqual(mockFollowers);
     });
   });

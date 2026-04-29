@@ -35,8 +35,7 @@ export class UserController {
   @ApiBearerAuth()
   @Get()
   @Roles(Role.Admin)
-  @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
-  @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
+
   @ApiOkResponsePaginated({ type: UserResponseDto })
   async findAll(@Query() paginationQuery: PaginationQueryDto) {
     return this.userService.findAll(paginationQuery);
@@ -52,9 +51,13 @@ export class UserController {
   @ApiBearerAuth()
   @Get("/authors/requests")
   @Roles(Role.Admin)
-  @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
-  @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
-  @ApiQuery({ name: "status", type: String, required: false, enum: ["pending", "approved", "rejected"] })
+
+  @ApiQuery({
+    name: "status",
+    type: String,
+    required: false,
+    enum: ["pending", "approved", "rejected"],
+  })
   @ApiOkResponsePaginated({ type: AuthorRequestResponseDto })
   async getAuthorRequests(
     @Query() paginationQuery: PaginationQueryDto,
@@ -81,8 +84,7 @@ export class UserController {
 
   @ApiBearerAuth()
   @Get("/authors")
-  @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
-  @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
+
   @ApiQuery({ name: "search", type: String, required: false })
   @ApiQuery({ name: "expertise", type: String, required: false })
   @ApiOkResponsePaginated({ type: UserResponseDto })

@@ -46,11 +46,10 @@ export class ReviewsService {
     recipeId: string,
     paginationQuery: PaginationQueryDto,
   ): Promise<PaginatedResponseDto<ReviewDto>> {
-    const { page = 1, limit = 10 } = paginationQuery;
-    const skip = (page - 1) * limit;
+    const { offset = 0, limit = 10 } = paginationQuery;
 
     const [reviews, total] = await Promise.all([
-      this.reviewModel.find().skip(skip).limit(limit).exec(),
+      this.reviewModel.find().skip(offset).limit(limit).exec(),
       this.reviewModel.countDocuments().exec(),
     ]);
 
@@ -64,12 +63,7 @@ export class ReviewsService {
       updatedAt: review.updatedAt,
     }));
 
-    return {
-      content: data,
-      total,
-      page,
-      lastPage: Math.ceil(total / limit),
-    };
+    return new PaginatedResponseDto(data, { total, limit, offset });
   }
 
   async findOne(id: string): Promise<ReviewDto> {

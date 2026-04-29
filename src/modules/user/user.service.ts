@@ -22,14 +22,13 @@ export class UserService {
   async findAll(
     paginationQuery: PaginationQueryDto,
   ): Promise<PaginatedResponseDto<UserResponseDto>> {
-    const { page = 1, limit = 10 } = paginationQuery;
-    const skip = (page - 1) * limit;
+    const { offset = 0, limit = 10 } = paginationQuery;
 
     const users = await this.userModel
       .find({
         $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }],
       })
-      .skip(skip)
+      .skip(offset)
       .limit(limit)
       .exec();
 
@@ -43,12 +42,7 @@ export class UserService {
       excludeExtraneousValues: true,
     });
 
-    return {
-      content: data,
-      total,
-      page,
-      lastPage: Math.ceil(total / limit),
-    };
+    return new PaginatedResponseDto(data, { total, limit, offset });
   }
 
   async findById(id: string): Promise<UserResponseDto> {
@@ -98,8 +92,7 @@ export class UserService {
     paginationQuery: PaginationQueryDto,
     status?: "pending" | "approved" | "rejected",
   ): Promise<PaginatedResponseDto<AuthorRequestResponseDto>> {
-    const { page = 1, limit = 10 } = paginationQuery;
-    const skip = (page - 1) * limit;
+    const { offset = 0, limit = 10 } = paginationQuery;
 
     const query: any = {};
     if (status) query.status = status;
@@ -107,60 +100,50 @@ export class UserService {
     const requests = await this.authorRequestModel
       .find(query)
       .populate("userId", "_id firstName lastName email avatar")
-      .skip(skip)
+      .skip(offset)
       .limit(limit)
       .sort({ _id: -1 })
       .exec();
 
     const total = await this.authorRequestModel.countDocuments(query).exec();
 
-    const content = requests.map((req) => {
-      const user = req.userId as any;
-      return plainToInstance(
-        AuthorRequestResponseDto,
-        {
-          id: req._id.toString(),
-          status: req.status,
-          user: {
-            id: user._id.toString(),
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
-            avatar: user.avatar,
+    const data = requests
+      .filter((req) => req.userId)
+      .map((req) => {
+        const user = req.userId as any;
+        return plainToInstance(
+          AuthorRequestResponseDto,
+          {
+            id: req._id.toString(),
+            status: req.status,
+            user: {
+              id: user._id.toString(),
+              firstName: user.firstName,
+              lastName: user.lastName,
+              email: user.email,
+              avatar: user.avatar,
+            },
           },
-        },
-        { excludeExtraneousValues: true },
-      );
-    });
+          { excludeExtraneousValues: true },
+        );
+      });
 
-    return { content, total, page, lastPage: Math.ceil(total / limit) };
+    return new PaginatedResponseDto(data, { total, limit, offset });
   }
 
   async approveAuthorRequest(requestId: string): Promise<string> {
     const request = await this.authorRequestModel.findById(requestId).exec();
     if (!request) {
-      throw new HttpException(
-        "Author request not found.",
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException("Author request not found.", HttpStatus.BAD_REQUEST);
     }
 
     if (request.status === "approved") {
-      throw new HttpException(
-        "This request has already been approved.",
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException("This request has already been approved.", HttpStatus.BAD_REQUEST);
     }
 
-    await this.authorRequestModel.updateOne(
-      { _id: requestId },
-      { $set: { status: "approved" } },
-    );
+    await this.authorRequestModel.updateOne({ _id: requestId }, { $set: { status: "approved" } });
 
-    await this.userModel.updateOne(
-      { _id: request.userId },
-      { $set: { role: "author" } },
-    );
+    await this.userModel.updateOne({ _id: request.userId }, { $set: { role: "author" } });
 
     return "Author request approved successfully.";
   }
@@ -168,23 +151,14 @@ export class UserService {
   async rejectAuthorRequest(requestId: string): Promise<string> {
     const request = await this.authorRequestModel.findById(requestId).exec();
     if (!request) {
-      throw new HttpException(
-        "Author request not found.",
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException("Author request not found.", HttpStatus.BAD_REQUEST);
     }
 
     if (request.status === "rejected") {
-      throw new HttpException(
-        "This request has already been rejected.",
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException("This request has already been rejected.", HttpStatus.BAD_REQUEST);
     }
 
-    await this.authorRequestModel.updateOne(
-      { _id: requestId },
-      { $set: { status: "rejected" } },
-    );
+    await this.authorRequestModel.updateOne({ _id: requestId }, { $set: { status: "rejected" } });
 
     return "Author request rejected successfully.";
   }
@@ -194,10 +168,8 @@ export class UserService {
     search?: string,
     expertise?: string,
   ): Promise<PaginatedResponseDto<UserResponseDto>> {
-    const { page = 1, limit = 10 } = paginationQuery;
-    const skip = (page - 1) * limit;
+    const { offset = 0, limit = 10 } = paginationQuery;
 
-    // Build query
     const query: any = {
       role: "author",
       $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }],
@@ -219,7 +191,7 @@ export class UserService {
       .find(query)
       .select("-password -refreshToken")
       .sort({ followersCount: -1, recipesCount: -1 })
-      .skip(skip)
+      .skip(offset)
       .limit(limit)
       .exec();
 
@@ -229,12 +201,7 @@ export class UserService {
       excludeExtraneousValues: true,
     });
 
-    return {
-      content: data,
-      total,
-      page,
-      lastPage: Math.ceil(total / limit),
-    };
+    return new PaginatedResponseDto(data, { total, limit, offset });
   }
 
   async getAuthorById(id: string): Promise<UserResponseDto> {

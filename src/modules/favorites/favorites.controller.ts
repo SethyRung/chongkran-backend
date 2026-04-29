@@ -22,8 +22,7 @@ export class FavoritesController {
 
   @ApiBearerAuth()
   @Get("/:recipeId")
-  @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
-  @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
+
   @ApiOkResponsePaginated({ type: FavoriteDto })
   async findAll(
     @Param("recipeId") recipeId: string,

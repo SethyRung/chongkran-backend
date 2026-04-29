@@ -3,6 +3,7 @@ import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from "@nes
 import { Observable } from "rxjs";
 import { map } from "rxjs/operators";
 import { ApiResponse, ApiResponseCode } from "@/common/types/api-response";
+import { PAGINATED_MARKER } from "@/dto/paginated-response.dto";
 
 @Injectable()
 export class ResponseInterceptor<T> implements NestInterceptor<T, ApiResponse<T>> {
@@ -20,13 +21,23 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, ApiResponse<T>
           return data;
         }
 
+        const status = {
+          code: ApiResponseCode.Success,
+          message: "Success",
+          requestId: randomUUID(),
+          requestTime: Date.now(),
+        };
+
+        if (data && typeof data === "object" && PAGINATED_MARKER in data) {
+          return {
+            status,
+            data: data.data,
+            meta: data.meta,
+          };
+        }
+
         return {
-          status: {
-            code: ApiResponseCode.Success,
-            message: "Success",
-            requestId: randomUUID(),
-            requestTime: Date.now(),
-          },
+          status,
           data,
         };
       }),

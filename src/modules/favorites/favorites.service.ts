@@ -42,11 +42,10 @@ export class FavoritesService {
     userId: string,
     paginationQuery: PaginationQueryDto,
   ): Promise<PaginatedResponseDto<FavoriteDto>> {
-    const { page = 1, limit = 10 } = paginationQuery;
-    const skip = (page - 1) * limit;
+    const { offset = 0, limit = 10 } = paginationQuery;
 
     const [favorites, total] = await Promise.all([
-      this.favoriteModel.find({ recipeId, userId }).skip(skip).limit(limit).exec(),
+      this.favoriteModel.find({ recipeId, userId }).skip(offset).limit(limit).exec(),
       this.favoriteModel.countDocuments({ recipeId, userId }).exec(),
     ]);
 
@@ -57,12 +56,7 @@ export class FavoritesService {
       createdAt: favorite.createdAt,
     }));
 
-    return {
-      content: data,
-      total,
-      page,
-      lastPage: Math.ceil(total / limit),
-    };
+    return new PaginatedResponseDto(data, { total, limit, offset });
   }
 
   async remove(recipeId: string, userId: string): Promise<string> {

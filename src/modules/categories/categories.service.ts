@@ -30,11 +30,10 @@ export class CategoriesService {
   }
 
   async findAll(paginationQuery: PaginationQueryDto): Promise<PaginatedResponseDto<CategoryDto>> {
-    const { page = 1, limit = 10 } = paginationQuery;
-    const skip = (page - 1) * limit;
+    const { offset = 0, limit = 10 } = paginationQuery;
 
     const [categories, total] = await Promise.all([
-      this.categoryModel.find({ isDeleted: false }).skip(skip).limit(limit).exec(),
+      this.categoryModel.find({ isDeleted: false }).skip(offset).limit(limit).exec(),
       this.categoryModel.countDocuments({ isDeleted: false }).exec(),
     ]);
 
@@ -46,12 +45,7 @@ export class CategoriesService {
       updatedAt: category.updatedAt,
     }));
 
-    return {
-      content: data,
-      total,
-      page,
-      lastPage: Math.ceil(total / limit),
-    };
+    return new PaginatedResponseDto(data, { total, limit, offset });
   }
 
   async findById(id: string): Promise<CategoryDto> {

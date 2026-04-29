@@ -22,8 +22,6 @@ export class RecipesController {
   @Public()
   @Get()
   @ApiOkResponsePaginated({ type: RecipeDto })
-  @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
-  @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
   async findAll(@Query() paginationQuery: PaginationQueryDto) {
     return this.recipesService.findAll(paginationQuery);
   }
@@ -37,8 +35,6 @@ export class RecipesController {
     required: false,
     default: "all",
   })
-  @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
-  @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
   async findMy(
     @GetCurrentUserId() userId: string,
     @Query("status") status: RecipeDto["status"] & "all",
@@ -51,8 +47,6 @@ export class RecipesController {
   @Get("/pending")
   @Roles(Role.Admin)
   @ApiOkResponseWrapper({ type: RecipeDto, isArray: true })
-  @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
-  @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
   async findPending(@Query() paginationQuery: PaginationQueryDto) {
     return this.recipesService.findPending(paginationQuery);
   }
@@ -115,8 +109,6 @@ export class RecipesController {
   @Public()
   @Get("/author/:authorId")
   @ApiOkResponsePaginated({ type: RecipeDto })
-  @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
-  @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
   async findByAuthor(
     @Param("authorId") authorId: string,
     @Query() paginationQuery: PaginationQueryDto,

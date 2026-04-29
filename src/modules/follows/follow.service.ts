@@ -4,6 +4,8 @@ import { Model } from "mongoose";
 import { Follow, FollowDocument } from "@/db/schema/follow.schema";
 import { User, UserDocument } from "@/db/schema/user.schema";
 import { FollowDto, UnfollowDto } from "./dto/follow.dto";
+import { PaginatedResponseDto } from "@/dto/paginated-response.dto";
+import { PaginationQueryDto } from "@/dto/pagination-query.dto";
 
 @Injectable()
 export class FollowService {
@@ -15,7 +17,6 @@ export class FollowService {
   async follow(followerId: string, followDto: FollowDto): Promise<Follow> {
     const { followingId } = followDto;
 
-    // Check if already following
     const existingFollow = await this.followModel.findOne({
       follower: followerId,
       following: followingId,
@@ -25,12 +26,10 @@ export class FollowService {
       throw new Error("Already following this user");
     }
 
-    // Check if trying to follow self
     if (followerId === followingId) {
       throw new Error("Cannot follow yourself");
     }
 
-    // Create follow relationship
     const follow = new this.followModel({
       follower: followerId,
       following: followingId,
@@ -38,7 +37,6 @@ export class FollowService {
 
     await follow.save();
 
-    // Update follower and following counts
     await this.userModel.findByIdAndUpdate(followerId, {
       $inc: { followingCount: 1 },
     });
@@ -62,7 +60,6 @@ export class FollowService {
       throw new Error("Not following this user");
     }
 
-    // Update follower and following counts
     await this.userModel.findByIdAndUpdate(followerId, {
       $inc: { followingCount: -1 },
     });
@@ -72,52 +69,48 @@ export class FollowService {
     });
   }
 
-  async getFollowers(userId: string, page = 1, limit = 10) {
-    const skip = (page - 1) * limit;
+  async getFollowers(
+    userId: string,
+    paginationQuery: PaginationQueryDto,
+  ): Promise<PaginatedResponseDto<any>> {
+    const { offset = 0, limit = 10 } = paginationQuery;
 
-    const follows = await this.followModel
-      .find({ following: userId })
-      .populate("follower", "firstName lastName email avatar")
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .exec();
+    const [follows, total] = await Promise.all([
+      this.followModel
+        .find({ following: userId })
+        .populate("follower", "firstName lastName email avatar")
+        .sort({ createdAt: -1 })
+        .skip(offset)
+        .limit(limit)
+        .exec(),
+      this.followModel.countDocuments({ following: userId }),
+    ]);
 
-    const total = await this.followModel.countDocuments({ following: userId });
+    const data = follows.map((follow) => follow.follower);
 
-    return {
-      followers: follows.map((follow) => follow.follower),
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit),
-      },
-    };
+    return new PaginatedResponseDto(data, { total, limit, offset });
   }
 
-  async getFollowing(userId: string, page = 1, limit = 10) {
-    const skip = (page - 1) * limit;
+  async getFollowing(
+    userId: string,
+    paginationQuery: PaginationQueryDto,
+  ): Promise<PaginatedResponseDto<any>> {
+    const { offset = 0, limit = 10 } = paginationQuery;
 
-    const follows = await this.followModel
-      .find({ follower: userId })
-      .populate("following", "firstName lastName email avatar")
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .exec();
+    const [follows, total] = await Promise.all([
+      this.followModel
+        .find({ follower: userId })
+        .populate("following", "firstName lastName email avatar")
+        .sort({ createdAt: -1 })
+        .skip(offset)
+        .limit(limit)
+        .exec(),
+      this.followModel.countDocuments({ follower: userId }),
+    ]);
 
-    const total = await this.followModel.countDocuments({ follower: userId });
+    const data = follows.map((follow) => follow.following);
 
-    return {
-      following: follows.map((follow) => follow.following),
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit),
-      },
-    };
+    return new PaginatedResponseDto(data, { total, limit, offset });
   }
 
   async isFollowing(followerId: string, followingId: string): Promise<boolean> {

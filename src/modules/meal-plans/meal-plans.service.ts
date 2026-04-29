@@ -41,11 +41,10 @@ export class MealPlansService {
     userId: string,
     paginationQuery: PaginationQueryDto,
   ): Promise<PaginatedResponseDto<MealPlanDto>> {
-    const { page = 1, limit = 10 } = paginationQuery;
-    const skip = (page - 1) * limit;
+    const { offset = 0, limit = 10 } = paginationQuery;
 
     const [mealPlans, total] = await Promise.all([
-      this.mealPlanModel.find({ userId }).skip(skip).limit(limit).exec(),
+      this.mealPlanModel.find({ userId }).skip(offset).limit(limit).exec(),
       this.mealPlanModel.countDocuments({ userId }).exec(),
     ]);
 
@@ -62,12 +61,7 @@ export class MealPlansService {
       updatedAt: mealPlan.updatedAt,
     }));
 
-    return {
-      content: data,
-      total,
-      page,
-      lastPage: Math.ceil(total / limit),
-    };
+    return new PaginatedResponseDto(data, { total, limit, offset });
   }
 
   async findOne(id: string, userId: string): Promise<MealPlanDto> {

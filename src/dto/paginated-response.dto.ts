@@ -1,15 +1,18 @@
-import { ApiProperty } from "@nestjs/swagger";
+export const PAGINATED_MARKER = "__paginated" as const;
+
+export interface PaginationMeta {
+  total: number;
+  limit: number;
+  offset: number;
+}
 
 export class PaginatedResponseDto<T> {
-  @ApiProperty({ isArray: true, type: Object })
-  content: T[];
+  readonly data: T[];
+  readonly meta: PaginationMeta;
+  readonly [PAGINATED_MARKER] = true;
 
-  @ApiProperty()
-  total: number;
-
-  @ApiProperty()
-  page: number;
-
-  @ApiProperty()
-  lastPage: number;
+  constructor(data: T[], meta: PaginationMeta) {
+    this.data = data;
+    this.meta = meta;
+  }
 }

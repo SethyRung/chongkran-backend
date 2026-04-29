@@ -13,6 +13,7 @@ import {
 import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
 import { FollowService } from "./follow.service";
 import { FollowDto, UnfollowDto } from "./dto/follow.dto";
+import { PaginationQueryDto } from "@/dto/pagination-query.dto";
 
 @ApiTags("Follows")
 @Controller("/api/follows")
@@ -38,20 +39,18 @@ export class FollowController {
   @ApiOperation({ summary: "Get user's followers" })
   async getFollowers(
     @Param("userId") userId: string,
-    @Query("page") page: number = 1,
-    @Query("limit") limit: number = 10,
+    @Query() paginationQuery: PaginationQueryDto,
   ) {
-    return this.followService.getFollowers(userId, page, limit);
+    return this.followService.getFollowers(userId, paginationQuery);
   }
 
   @Get("following/:userId")
   @ApiOperation({ summary: "Get users that user is following" })
   async getFollowing(
     @Param("userId") userId: string,
-    @Query("page") page: number = 1,
-    @Query("limit") limit: number = 10,
+    @Query() paginationQuery: PaginationQueryDto,
   ) {
-    return this.followService.getFollowing(userId, page, limit);
+    return this.followService.getFollowing(userId, paginationQuery);
   }
 
   @Get("is-following/:followingId")

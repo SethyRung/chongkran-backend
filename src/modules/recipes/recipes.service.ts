@@ -23,11 +23,10 @@ export class RecipesService {
   ) {}
 
   async findAll(paginationQuery: PaginationQueryDto): Promise<PaginatedResponseDto<RecipeDto>> {
-    const { page = 1, limit = 10 } = paginationQuery;
-    const skip = (page - 1) * limit;
+    const { offset = 0, limit = 10 } = paginationQuery;
 
     const [recipes, total] = await Promise.all([
-      this.recipeModel.find().skip(skip).limit(limit).exec(),
+      this.recipeModel.find().skip(offset).limit(limit).exec(),
       this.recipeModel.countDocuments().exec(),
     ]);
 
@@ -50,12 +49,7 @@ export class RecipesService {
       updatedAt: recipe.updatedAt,
     }));
 
-    return {
-      content: data,
-      total,
-      page,
-      lastPage: Math.ceil(total / limit),
-    };
+    return new PaginatedResponseDto(data, { total, limit, offset });
   }
 
   async findMy(
@@ -65,13 +59,12 @@ export class RecipesService {
   ): Promise<PaginatedResponseDto<RecipeDto>> {
     const filter = status && status !== "all" ? { status } : {};
 
-    const { page = 1, limit = 10 } = paginationQuery;
-    const skip = (page - 1) * limit;
+    const { offset = 0, limit = 10 } = paginationQuery;
 
     const [recipes, total] = await Promise.all([
       this.recipeModel
         .find({ author: userId, ...filter })
-        .skip(skip)
+        .skip(offset)
         .limit(limit)
         .exec(),
       this.recipeModel.countDocuments({ author: userId, ...filter }).exec(),
@@ -96,12 +89,7 @@ export class RecipesService {
       updatedAt: recipe.updatedAt,
     }));
 
-    return {
-      content: data,
-      total,
-      page,
-      lastPage: Math.ceil(total / limit),
-    };
+    return new PaginatedResponseDto(data, { total, limit, offset });
   }
 
   async findById(id: string): Promise<RecipeDto> {
@@ -118,11 +106,10 @@ export class RecipesService {
   }
 
   async findPending(paginationQuery: PaginationQueryDto): Promise<PaginatedResponseDto<RecipeDto>> {
-    const { page = 1, limit = 10 } = paginationQuery;
-    const skip = (page - 1) * limit;
+    const { offset = 0, limit = 10 } = paginationQuery;
 
     const [recipes, total] = await Promise.all([
-      this.recipeModel.find({ status: "pending" }).skip(skip).limit(limit).exec(),
+      this.recipeModel.find({ status: "pending" }).skip(offset).limit(limit).exec(),
       this.recipeModel.countDocuments({ status: "pending" }).exec(),
     ]);
 
@@ -145,12 +132,7 @@ export class RecipesService {
       updatedAt: recipe.updatedAt,
     }));
 
-    return {
-      content: data,
-      total,
-      page,
-      lastPage: Math.ceil(total / limit),
-    };
+    return new PaginatedResponseDto(data, { total, limit, offset });
   }
 
   async create(userId: string, createRecipe: CreateRecipeDto): Promise<RecipeDto> {
@@ -253,15 +235,14 @@ export class RecipesService {
     authorId: string,
     paginationQuery: PaginationQueryDto,
   ): Promise<PaginatedResponseDto<RecipeDto>> {
-    const { page = 1, limit = 10 } = paginationQuery;
-    const skip = (page - 1) * limit;
+    const { offset = 0, limit = 10 } = paginationQuery;
 
     const [recipes, total] = await Promise.all([
       this.recipeModel
         .find({ author: authorId, status: "approved" })
         .populate("author", "firstName lastName avatar")
         .sort({ createdAt: -1 })
-        .skip(skip)
+        .skip(offset)
         .limit(limit)
         .exec(),
       this.recipeModel.countDocuments({ author: authorId, status: "approved" }).exec(),
@@ -274,12 +255,7 @@ export class RecipesService {
       category: recipe.category.toString(),
     }));
 
-    return {
-      content: data,
-      total,
-      page,
-      lastPage: Math.ceil(total / limit),
-    };
+    return new PaginatedResponseDto(data, { total, limit, offset });
   }
 
   async findByIdWithAuthor(id: string): Promise<RecipeDto> {
@@ -303,15 +279,14 @@ export class RecipesService {
   async findAllWithAuthors(
     paginationQuery: PaginationQueryDto,
   ): Promise<PaginatedResponseDto<RecipeDto>> {
-    const { page = 1, limit = 10 } = paginationQuery;
-    const skip = (page - 1) * limit;
+    const { offset = 0, limit = 10 } = paginationQuery;
 
     const [recipes, total] = await Promise.all([
       this.recipeModel
         .find({ status: "approved" })
         .populate("author", "firstName lastName avatar")
         .sort({ createdAt: -1 })
-        .skip(skip)
+        .skip(offset)
         .limit(limit)
         .exec(),
       this.recipeModel.countDocuments({ status: "approved" }).exec(),
@@ -324,12 +299,7 @@ export class RecipesService {
       category: recipe.category.toString(),
     }));
 
-    return {
-      content: data,
-      total,
-      page,
-      lastPage: Math.ceil(total / limit),
-    };
+    return new PaginatedResponseDto(data, { total, limit, offset });
   }
 
   async getPopularRecipesByAuthor(authorId: string, limit = 5): Promise<RecipeDto[]> {

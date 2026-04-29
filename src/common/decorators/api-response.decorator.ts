@@ -120,23 +120,23 @@ export function ApiOkResponsePaginated<TModel extends Type<any>>(
         properties: {
           status: buildStatusSchema(),
           data: {
+            type: "array",
+            items: itemSchema,
+          },
+          meta: {
             type: "object",
             properties: {
-              content: {
-                type: "array",
-                items: itemSchema,
-              },
               total: {
                 type: "number",
                 example: 100,
               },
-              page: {
-                type: "number",
-                example: 1,
-              },
-              lastPage: {
+              limit: {
                 type: "number",
                 example: 10,
+              },
+              offset: {
+                type: "number",
+                example: 0,
               },
             },
           },

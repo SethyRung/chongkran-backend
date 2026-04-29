@@ -28,8 +28,7 @@ export class ReviewsController {
 
   @ApiBearerAuth()
   @Get("/recipe/:recipeId")
-  @ApiQuery({ name: "page", type: Number, required: false, default: 1 })
-  @ApiQuery({ name: "limit", type: Number, required: false, default: 10 })
+
   @ApiOkResponsePaginated({ type: ReviewDto })
   async findAll(@Param("recipeId") recipeId: string, @Query() paginationQuery: PaginationQueryDto) {
     return this.reviewsService.findAll(recipeId, paginationQuery);
