@@ -14,8 +14,8 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
 import { FollowService } from "./follow.service";
 import { FollowDto, UnfollowDto } from "./dto/follow.dto";
 
-@ApiTags("follows")
-@Controller("follows")
+@ApiTags("Follows")
+@Controller("/api/follows")
 @ApiBearerAuth()
 export class FollowController {
   constructor(private readonly followService: FollowService) {}
