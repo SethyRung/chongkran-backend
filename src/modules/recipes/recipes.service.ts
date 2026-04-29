@@ -110,8 +110,7 @@ export class RecipesService {
     if (!recipe) throw new HttpException("Recipe not found.", HttpStatus.BAD_REQUEST);
 
     return {
-      ...recipe.toObject(),
-      id: recipe._id.toString(),
+      ...recipe.toJSON(),
       author: recipe.author.toString(),
       likes: recipe.likes.length,
       category: recipe.category.toString(),
@@ -170,8 +169,7 @@ export class RecipesService {
     });
 
     return {
-      ...created.toObject(),
-      id: created._id.toString(),
+      ...created.toJSON(),
       author: created.author.toString(),
       likes: created.likes.length,
       category: created.category.toString(),
@@ -192,8 +190,7 @@ export class RecipesService {
       );
 
     return {
-      ...updated.toObject(),
-      id: updated._id.toString(),
+      ...updated.toJSON(),
       author: updated.author.toString(),
       likes: updated.likes.length,
       category: updated.category.toString(),
@@ -212,8 +209,7 @@ export class RecipesService {
     Object.assign(recipe, { ...updateRecipe, updateAt: currentDate });
     const updated = await recipe.save();
     return {
-      ...updated.toObject(),
-      id: updated._id.toString(),
+      ...updated.toJSON(),
       author: updated.author.toString(),
       likes: updated.likes.length,
       category: updated.category.toString(),
@@ -272,8 +268,7 @@ export class RecipesService {
     ]);
 
     const data: RecipeDto[] = recipes.map((recipe) => ({
-      ...recipe.toObject(),
-      id: recipe._id.toString(),
+      ...recipe.toJSON(),
       author: recipe.author.toString(),
       likes: recipe.likes.length,
       category: recipe.category.toString(),
@@ -298,8 +293,7 @@ export class RecipesService {
     }
 
     return {
-      ...recipe.toObject(),
-      id: recipe._id.toString(),
+      ...recipe.toJSON(),
       author: recipe.author.toString(),
       likes: recipe.likes.length,
       category: recipe.category.toString(),
@@ -324,8 +318,7 @@ export class RecipesService {
     ]);
 
     const data: RecipeDto[] = recipes.map((recipe) => ({
-      ...recipe.toObject(),
-      id: recipe._id.toString(),
+      ...recipe.toJSON(),
       author: recipe.author.toString(),
       likes: recipe.likes.length,
       category: recipe.category.toString(),
@@ -348,8 +341,7 @@ export class RecipesService {
       .exec();
 
     return recipes.map((recipe) => ({
-      ...recipe.toObject(),
-      id: recipe._id.toString(),
+      ...recipe.toJSON(),
       author: recipe.author.toString(),
       likes: recipe.likes.length,
       category: recipe.category.toString(),
@@ -365,8 +357,7 @@ export class RecipesService {
       .exec();
 
     return recipes.map((recipe) => ({
-      ...recipe.toObject(),
-      id: recipe._id.toString(),
+      ...recipe.toJSON(),
       author: recipe.author.toString(),
       likes: recipe.likes.length,
       category: recipe.category.toString(),
