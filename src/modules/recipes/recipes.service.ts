@@ -31,22 +31,10 @@ export class RecipesService {
     ]);
 
     const data: RecipeDto[] = recipes.map((recipe) => ({
-      id: recipe._id.toString(),
-      title: recipe.title,
-      description: recipe.description,
-      ingredients: recipe.ingredients,
-      steps: recipe.steps,
+      ...recipe.toJSON(),
       author: recipe.author.toString(),
-      tags: recipe.tags,
-      image: recipe.image,
-      cookTime: recipe.cookTime,
       likes: recipe.likes.length,
-      views: recipe.views,
-      difficulty: recipe.difficulty,
-      status: recipe.status,
       category: recipe.category.toString(),
-      createdAt: recipe.createdAt,
-      updatedAt: recipe.updatedAt,
     }));
 
     return new PaginatedResponseDto(data, { total, limit, offset });
@@ -63,30 +51,18 @@ export class RecipesService {
 
     const [recipes, total] = await Promise.all([
       this.recipeModel
-        .find({ author: userId, ...filter })
+        .find({ author: new Types.ObjectId(userId), ...filter })
         .skip(offset)
         .limit(limit)
         .exec(),
-      this.recipeModel.countDocuments({ author: userId, ...filter }).exec(),
+      this.recipeModel.countDocuments({ author: new Types.ObjectId(userId), ...filter }).exec(),
     ]);
 
     const data: RecipeDto[] = recipes.map((recipe) => ({
-      id: recipe._id.toString(),
-      title: recipe.title,
-      description: recipe.description,
-      ingredients: recipe.ingredients,
-      steps: recipe.steps,
+      ...recipe.toJSON(),
       author: recipe.author.toString(),
-      tags: recipe.tags,
-      image: recipe.image,
-      cookTime: recipe.cookTime,
       likes: recipe.likes.length,
-      views: recipe.views,
-      difficulty: recipe.difficulty,
-      status: recipe.status,
       category: recipe.category.toString(),
-      createdAt: recipe.createdAt,
-      updatedAt: recipe.updatedAt,
     }));
 
     return new PaginatedResponseDto(data, { total, limit, offset });
@@ -114,22 +90,10 @@ export class RecipesService {
     ]);
 
     const data: RecipeDto[] = recipes.map((recipe) => ({
-      id: recipe._id.toString(),
-      title: recipe.title,
-      description: recipe.description,
-      ingredients: recipe.ingredients,
-      steps: recipe.steps,
+      ...recipe.toJSON(),
       author: recipe.author.toString(),
-      tags: recipe.tags,
-      image: recipe.image,
-      cookTime: recipe.cookTime,
       likes: recipe.likes.length,
-      views: recipe.views,
-      difficulty: recipe.difficulty,
-      status: recipe.status,
       category: recipe.category.toString(),
-      createdAt: recipe.createdAt,
-      updatedAt: recipe.updatedAt,
     }));
 
     return new PaginatedResponseDto(data, { total, limit, offset });
@@ -239,13 +203,15 @@ export class RecipesService {
 
     const [recipes, total] = await Promise.all([
       this.recipeModel
-        .find({ author: authorId, status: "approved" })
+        .find({ author: new Types.ObjectId(authorId), status: "approved" })
         .populate("author", "firstName lastName avatar")
         .sort({ createdAt: -1 })
         .skip(offset)
         .limit(limit)
         .exec(),
-      this.recipeModel.countDocuments({ author: authorId, status: "approved" }).exec(),
+      this.recipeModel
+        .countDocuments({ author: new Types.ObjectId(authorId), status: "approved" })
+        .exec(),
     ]);
 
     const data: RecipeDto[] = recipes.map((recipe) => ({
@@ -304,7 +270,7 @@ export class RecipesService {
 
   async getPopularRecipesByAuthor(authorId: string, limit = 5): Promise<RecipeDto[]> {
     const recipes = await this.recipeModel
-      .find({ author: authorId, status: "approved" })
+      .find({ author: new Types.ObjectId(authorId), status: "approved" })
       .populate("author", "firstName lastName avatar")
       .sort({ views: -1, likes: -1 })
       .limit(limit)
@@ -320,7 +286,7 @@ export class RecipesService {
 
   async getRecentRecipesByAuthor(authorId: string, limit = 5): Promise<RecipeDto[]> {
     const recipes = await this.recipeModel
-      .find({ author: authorId, status: "approved" })
+      .find({ author: new Types.ObjectId(authorId), status: "approved" })
       .populate("author", "firstName lastName avatar")
       .sort({ createdAt: -1 })
       .limit(limit)

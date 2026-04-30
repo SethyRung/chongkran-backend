@@ -32,13 +32,9 @@ export class ReviewsService {
     });
 
     return {
-      id: created._id.toString(),
+      ...created.toJSON(),
       recipeId,
       userId,
-      rating: created.rating,
-      comment: created.comment,
-      createdAt: created.createdAt,
-      updatedAt: created.updatedAt,
     };
   }
 
@@ -54,13 +50,9 @@ export class ReviewsService {
     ]);
 
     const data: ReviewDto[] = reviews.map((review) => ({
-      id: review._id.toString(),
+      ...review.toJSON(),
       recipeId,
       userId: review.userId.toString(),
-      rating: review.rating,
-      comment: review.comment,
-      createdAt: review.createdAt,
-      updatedAt: review.updatedAt,
     }));
 
     return new PaginatedResponseDto(data, { total, limit, offset });
@@ -70,13 +62,9 @@ export class ReviewsService {
     const review = await this.reviewModel.findById(id).exec();
     if (!review) throw new NotFoundException("Review not found.");
     return {
-      id: review._id.toString(),
+      ...review.toJSON(),
       recipeId: review.recipeId.toString(),
       userId: review.userId.toString(),
-      rating: review.rating,
-      comment: review.comment,
-      createdAt: review.createdAt,
-      updatedAt: review.updatedAt,
     };
   }
 
@@ -88,13 +76,9 @@ export class ReviewsService {
     Object.assign(review, { ...updateReviewDto, updateAt: currentDate });
     const updated = await review.save();
     return {
-      id: updated._id.toString(),
+      ...updated.toJSON(),
       recipeId: updated.recipeId.toString(),
       userId,
-      rating: updated.rating,
-      comment: updated.comment,
-      createdAt: updated.createdAt,
-      updatedAt: updated.updatedAt,
     };
   }
 

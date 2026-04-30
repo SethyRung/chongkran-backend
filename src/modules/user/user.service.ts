@@ -114,14 +114,9 @@ export class UserService {
         return plainToInstance(
           AuthorRequestResponseDto,
           {
-            id: req._id.toString(),
-            status: req.status,
+            ...req.toJSON(),
             user: {
-              id: user._id.toString(),
-              firstName: user.firstName,
-              lastName: user.lastName,
-              email: user.email,
-              avatar: user.avatar,
+              ...user.toJSON(),
             },
           },
           { excludeExtraneousValues: true },

@@ -15,11 +15,10 @@ export class FavoritesService {
 
     if (existingFavorite) {
       return {
-        id: existingFavorite._id.toString(),
+        ...existingFavorite.toJSON(),
         recipeId,
         userId,
-        createdAt: existingFavorite.createdAt,
-      };
+      } as unknown as FavoriteDto;
     }
 
     const createdAt = new Date().toISOString();
@@ -30,11 +29,10 @@ export class FavoritesService {
     });
 
     return {
-      id: newFavorite._id.toString(),
+      ...newFavorite.toJSON(),
       recipeId,
       userId,
-      createdAt: newFavorite.createdAt,
-    };
+    } as unknown as FavoriteDto;
   }
 
   async findAll(
@@ -49,12 +47,11 @@ export class FavoritesService {
       this.favoriteModel.countDocuments({ recipeId, userId }).exec(),
     ]);
 
-    const data: FavoriteDto[] = favorites.map((favorite) => ({
-      id: favorite._id.toString(),
+    const data = favorites.map((favorite) => ({
+      ...favorite.toJSON(),
       recipeId: favorite.recipeId.toString(),
       userId: favorite.userId.toString(),
-      createdAt: favorite.createdAt,
-    }));
+    })) as unknown as FavoriteDto[];
 
     return new PaginatedResponseDto(data, { total, limit, offset });
   }

@@ -20,13 +20,7 @@ export class CategoriesService {
       updatedAt: currentDate,
     });
 
-    return {
-      id: created._id.toString(),
-      name: created.name,
-      description: created.description,
-      createdAt: created.createdAt,
-      updatedAt: created.updatedAt,
-    };
+    return created.toJSON() as unknown as CategoryDto;
   }
 
   async findAll(paginationQuery: PaginationQueryDto): Promise<PaginatedResponseDto<CategoryDto>> {
@@ -37,13 +31,7 @@ export class CategoriesService {
       this.categoryModel.countDocuments({ isDeleted: false }).exec(),
     ]);
 
-    const data: CategoryDto[] = categories.map((category) => ({
-      id: category._id.toString(),
-      name: category.name,
-      description: category.description,
-      createdAt: category.createdAt,
-      updatedAt: category.updatedAt,
-    }));
+    const data = categories.map((category) => category.toJSON() as unknown as CategoryDto);
 
     return new PaginatedResponseDto(data, { total, limit, offset });
   }
@@ -53,13 +41,7 @@ export class CategoriesService {
 
     if (!category) throw new NotFoundException("Category not found.");
 
-    return {
-      id: category._id.toString(),
-      name: category.name,
-      description: category.description,
-      createdAt: category.createdAt,
-      updatedAt: category.updatedAt,
-    };
+    return category.toJSON() as unknown as CategoryDto;
   }
 
   async update(id: string, updateCategoryDto: UpdateCategoryDto): Promise<CategoryDto> {
@@ -69,13 +51,7 @@ export class CategoriesService {
     const currentDate = new Date().toISOString();
     Object.assign(category, { ...updateCategoryDto, updateAt: currentDate });
     const updated = await category.save();
-    return {
-      id: updated._id.toString(),
-      name: updated.name,
-      description: updated.description,
-      createdAt: updated.createdAt,
-      updatedAt: updated.updatedAt,
-    };
+    return updated.toJSON() as unknown as CategoryDto;
   }
 
   async remove(id: string) {

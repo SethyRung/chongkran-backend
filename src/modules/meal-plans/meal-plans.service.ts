@@ -24,17 +24,14 @@ export class MealPlansService {
     });
 
     return {
-      id: created._id.toString(),
+      ...created.toJSON(),
       userId,
-      title: created.title,
       recipes: created.recipes.map((recipe) => ({
         recipeId: recipe.recipeId.toString(),
         day: recipe.day,
         mealType: recipe.mealType,
       })),
-      createdAt: created.createdAt,
-      updatedAt: created.updatedAt,
-    };
+    } as unknown as MealPlanDto;
   }
 
   async findAll(
@@ -42,45 +39,42 @@ export class MealPlansService {
     paginationQuery: PaginationQueryDto,
   ): Promise<PaginatedResponseDto<MealPlanDto>> {
     const { offset = 0, limit = 10 } = paginationQuery;
+    const userObjectId = new Types.ObjectId(userId);
 
     const [mealPlans, total] = await Promise.all([
-      this.mealPlanModel.find({ userId }).skip(offset).limit(limit).exec(),
-      this.mealPlanModel.countDocuments({ userId }).exec(),
+      this.mealPlanModel.find({ userId: userObjectId }).skip(offset).limit(limit).exec(),
+      this.mealPlanModel.countDocuments({ userId: userObjectId }).exec(),
     ]);
 
-    const data: MealPlanDto[] = mealPlans.map((mealPlan) => ({
-      id: mealPlan._id.toString(),
+    const data = mealPlans.map((mealPlan) => ({
+      ...mealPlan.toJSON(),
       userId,
-      title: mealPlan.title,
       recipes: mealPlan.recipes.map((recipe) => ({
         recipeId: recipe.recipeId.toString(),
         day: recipe.day,
         mealType: recipe.mealType,
       })),
-      createdAt: mealPlan.createdAt,
-      updatedAt: mealPlan.updatedAt,
-    }));
+    })) as unknown as MealPlanDto[];
 
     return new PaginatedResponseDto(data, { total, limit, offset });
   }
 
   async findOne(id: string, userId: string): Promise<MealPlanDto> {
-    const mealPlan = await this.mealPlanModel.findOne({ _id: id, userId }).exec();
+    const mealPlan = await this.mealPlanModel
+      .findOne({ _id: id, userId: new Types.ObjectId(userId) })
+      .exec();
 
     if (!mealPlan) throw new NotFoundException("Plan not found.");
 
     return {
-      id: mealPlan._id.toString(),
+      ...mealPlan.toJSON(),
       userId,
-      title: mealPlan.title,
       recipes: mealPlan.recipes.map((recipe) => ({
         recipeId: recipe.recipeId.toString(),
         day: recipe.day,
         mealType: recipe.mealType,
       })),
-      createdAt: mealPlan.createdAt,
-      updatedAt: mealPlan.updatedAt,
-    };
+    } as unknown as MealPlanDto;
   }
 
   async update(
@@ -88,27 +82,28 @@ export class MealPlansService {
     userId: string,
     updateMealPlanDto: UpdateMealPlanDto,
   ): Promise<MealPlanDto> {
-    const mealPlan = await this.mealPlanModel.findOne({ _id: id, userId }).exec();
+    const mealPlan = await this.mealPlanModel
+      .findOne({ _id: id, userId: new Types.ObjectId(userId) })
+      .exec();
     if (!mealPlan) throw new NotFoundException("Plan not found");
 
     Object.assign(mealPlan, { ...updateMealPlanDto });
     const updated = await mealPlan.save();
     return {
-      id: updated._id.toString(),
+      ...updated.toJSON(),
       userId,
-      title: updated.title,
       recipes: updated.recipes.map((recipe) => ({
         recipeId: recipe.recipeId.toString(),
         day: recipe.day,
         mealType: recipe.mealType,
       })),
-      createdAt: updated.createdAt,
-      updatedAt: updated.updatedAt,
-    };
+    } as unknown as MealPlanDto;
   }
 
   async remove(id: string, userId: string): Promise<string> {
-    const review = await this.mealPlanModel.findById({ _id: id, userId }).exec();
+    const review = await this.mealPlanModel
+      .findById({ _id: id, userId: new Types.ObjectId(userId) })
+      .exec();
     if (!review) throw new NotFoundException("Plan not found.");
 
     await review.deleteOne();

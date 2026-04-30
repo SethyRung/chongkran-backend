@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import { Model, Types } from "mongoose";
 import { Follow, FollowDocument } from "@/db/schema/follow.schema";
 import { User, UserDocument } from "@/db/schema/user.schema";
 import { FollowDto, UnfollowDto } from "./dto/follow.dto";
@@ -16,10 +16,12 @@ export class FollowService {
 
   async follow(followerId: string, followDto: FollowDto): Promise<Follow> {
     const { followingId } = followDto;
+    const followerObjectId = new Types.ObjectId(followerId);
+    const followingObjectId = new Types.ObjectId(followingId);
 
     const existingFollow = await this.followModel.findOne({
-      follower: followerId,
-      following: followingId,
+      follower: followerObjectId,
+      following: followingObjectId,
     });
 
     if (existingFollow) {
@@ -31,8 +33,8 @@ export class FollowService {
     }
 
     const follow = new this.followModel({
-      follower: followerId,
-      following: followingId,
+      follower: followerObjectId,
+      following: followingObjectId,
     });
 
     await follow.save();
@@ -52,8 +54,8 @@ export class FollowService {
     const { followingId } = unfollowDto;
 
     const follow = await this.followModel.findOneAndDelete({
-      follower: followerId,
-      following: followingId,
+      follower: new Types.ObjectId(followerId),
+      following: new Types.ObjectId(followingId),
     });
 
     if (!follow) {
@@ -74,16 +76,17 @@ export class FollowService {
     paginationQuery: PaginationQueryDto,
   ): Promise<PaginatedResponseDto<any>> {
     const { offset = 0, limit = 10 } = paginationQuery;
+    const userObjectId = new Types.ObjectId(userId);
 
     const [follows, total] = await Promise.all([
       this.followModel
-        .find({ following: userId })
+        .find({ following: userObjectId })
         .populate("follower", "firstName lastName email avatar")
         .sort({ createdAt: -1 })
         .skip(offset)
         .limit(limit)
         .exec(),
-      this.followModel.countDocuments({ following: userId }),
+      this.followModel.countDocuments({ following: userObjectId }),
     ]);
 
     const data = follows.map((follow) => follow.follower);
@@ -96,16 +99,17 @@ export class FollowService {
     paginationQuery: PaginationQueryDto,
   ): Promise<PaginatedResponseDto<any>> {
     const { offset = 0, limit = 10 } = paginationQuery;
+    const userObjectId = new Types.ObjectId(userId);
 
     const [follows, total] = await Promise.all([
       this.followModel
-        .find({ follower: userId })
+        .find({ follower: userObjectId })
         .populate("following", "firstName lastName email avatar")
         .sort({ createdAt: -1 })
         .skip(offset)
         .limit(limit)
         .exec(),
-      this.followModel.countDocuments({ follower: userId }),
+      this.followModel.countDocuments({ follower: userObjectId }),
     ]);
 
     const data = follows.map((follow) => follow.following);
@@ -115,20 +119,22 @@ export class FollowService {
 
   async isFollowing(followerId: string, followingId: string): Promise<boolean> {
     const follow = await this.followModel.findOne({
-      follower: followerId,
-      following: followingId,
+      follower: new Types.ObjectId(followerId),
+      following: new Types.ObjectId(followingId),
     });
 
     return !!follow;
   }
 
   async getFollowStats(userId: string) {
+    const userObjectId = new Types.ObjectId(userId);
+
     const followersCount = await this.followModel.countDocuments({
-      following: userId,
+      following: userObjectId,
     });
 
     const followingCount = await this.followModel.countDocuments({
-      follower: userId,
+      follower: userObjectId,
     });
 
     return {

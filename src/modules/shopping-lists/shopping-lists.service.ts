@@ -26,15 +26,14 @@ export class ShoppingListsService {
     });
 
     return {
-      id: created._id.toString(),
+      ...created.toJSON(),
       userId,
       items: created.items.map((shoppingItem) => ({
         name: shoppingItem.name,
         quantity: shoppingItem.quantity,
         checked: shoppingItem.checked,
       })),
-      createdAt: created.createdAt,
-    };
+    } as unknown as ShoppingListDto;
   }
 
   async findOne(userId: string): Promise<ShoppingListDto> {
@@ -43,15 +42,14 @@ export class ShoppingListsService {
     if (!shoppingItem) throw new NotFoundException("List not found.");
 
     return {
-      id: shoppingItem._id.toString(),
+      ...shoppingItem.toJSON(),
       userId,
       items: shoppingItem.items.map((shoppingItem) => ({
         name: shoppingItem.name,
         quantity: shoppingItem.quantity,
         checked: shoppingItem.checked,
       })),
-      createdAt: shoppingItem.createdAt,
-    };
+    } as unknown as ShoppingListDto;
   }
 
   async update(
@@ -64,15 +62,14 @@ export class ShoppingListsService {
     Object.assign(shoppingItem, { ...updateShoppingListDto });
     const updated = await shoppingItem.save();
     return {
-      id: updated._id.toString(),
+      ...updated.toJSON(),
       userId,
       items: updated.items.map((shoppingItem) => ({
         name: shoppingItem.name,
         quantity: shoppingItem.quantity,
         checked: shoppingItem.checked,
       })),
-      createdAt: updated.createdAt,
-    };
+    } as unknown as ShoppingListDto;
   }
 
   async remove(userId: string): Promise<string> {
