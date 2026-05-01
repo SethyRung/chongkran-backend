@@ -1,7 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { FollowController } from "../src/follows/follow.controller";
-import { FollowService } from "../src/follows/follow.service";
-import { FollowModule } from "../src/follows/follow.module";
+import { FollowController } from "../src/modules/follows/follow.controller";
+import { FollowService } from "../src/modules/follows/follow.service";
+import { FollowModule } from "../src/modules/follows/follow.module";
 import { MongooseModule } from "@nestjs/mongoose";
 
 describe("FollowController", () => {
@@ -28,11 +28,8 @@ describe("FollowController", () => {
       const mockUser = { sub: "507f1f77bcf86cd799439012" };
 
       jest.spyOn(service, "follow").mockResolvedValue({
-        id: "follow-id",
-        follower: "507f1f77bcf86cd799439012",
-        following: "507f1f77bcf86cd799439011",
-        createdAt: new Date(),
-      } as any);
+        message: "Successfully followed user",
+      });
 
       const result = await controller.follow(mockUser as any, followDto);
 
@@ -62,7 +59,7 @@ describe("FollowController", () => {
       const result = await controller.unfollow(mockUser as any, unfollowDto);
 
       expect(service.unfollow).toHaveBeenCalledWith(mockUser.sub, unfollowDto);
-      expect(result).toEqual({ message: "Successfully unfollowed user" });
+      expect(result).toEqual("Successfully unfollowed user");
     });
   });
 

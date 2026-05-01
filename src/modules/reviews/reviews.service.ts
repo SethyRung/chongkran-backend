@@ -3,16 +3,16 @@ import { CreateReviewDto } from "./dto/create-review.dto";
 import { UpdateReviewDto } from "./dto/update-review.dto";
 import { ReviewDto } from "./dto/review.dto";
 import { InjectModel } from "@nestjs/mongoose";
-import { Review, ReviewDocument } from "@/db/schema/review.schema";
-import { Model } from "mongoose";
+import { Recipe, RecipeDocument } from "@/db/schema/recipe.schema";
 import { User, UserDocument } from "@/db/schema/user.schema";
+import { Model, Types } from "mongoose";
 import { PaginationQueryDto } from "@/dto/pagination-query.dto";
 import { PaginatedResponseDto } from "@/dto/paginated-response.dto";
 
 @Injectable()
 export class ReviewsService {
   constructor(
-    @InjectModel(Review.name) private reviewModel: Model<ReviewDocument>,
+    @InjectModel(Recipe.name) private recipeModel: Model<RecipeDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {}
 
@@ -21,20 +21,33 @@ export class ReviewsService {
     userId: string,
     createReviewDto: CreateReviewDto,
   ): Promise<ReviewDto> {
-    const currentDate = new Date().toISOString();
+    const recipe = await this.recipeModel.findById(recipeId).exec();
+    if (!recipe) throw new NotFoundException("Recipe not found.");
 
-    const created = await this.reviewModel.create({
-      ...createReviewDto,
-      recipeId,
-      userId,
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) throw new NotFoundException("User not found.");
+
+    const currentDate = new Date();
+    const review = {
+      userId: new Types.ObjectId(userId),
+      userName: `${user.firstName} ${user.lastName}`,
+      userAvatar: user.avatar,
+      rating: createReviewDto.rating,
+      comment: createReviewDto.comment,
       createdAt: currentDate,
       updatedAt: currentDate,
-    });
+    };
+
+    await this.recipeModel.findByIdAndUpdate(recipeId, { $push: { reviews: review } });
 
     return {
-      ...created.toJSON(),
-      recipeId,
       userId,
+      userName: review.userName,
+      userAvatar: review.userAvatar,
+      rating: review.rating,
+      comment: review.comment,
+      createdAt: review.createdAt,
+      updatedAt: review.updatedAt,
     };
   }
 
@@ -44,53 +57,61 @@ export class ReviewsService {
   ): Promise<PaginatedResponseDto<ReviewDto>> {
     const { offset = 0, limit = 10 } = paginationQuery;
 
-    const [reviews, total] = await Promise.all([
-      this.reviewModel.find().skip(offset).limit(limit).exec(),
-      this.reviewModel.countDocuments().exec(),
-    ]);
+    const recipe = await this.recipeModel.findById(recipeId).select("reviews").exec();
+    if (!recipe) throw new NotFoundException("Recipe not found.");
 
-    const data: ReviewDto[] = reviews.map((review) => ({
-      ...review.toJSON(),
-      recipeId,
+    const reviews = recipe.reviews || [];
+    const total = reviews.length;
+    const paginated = reviews.slice(offset, offset + limit);
+
+    const data: ReviewDto[] = paginated.map((review) => ({
       userId: review.userId.toString(),
+      userName: review.userName,
+      userAvatar: review.userAvatar,
+      rating: review.rating,
+      comment: review.comment,
+      createdAt: review.createdAt,
+      updatedAt: review.updatedAt,
     }));
 
     return new PaginatedResponseDto(data, { total, limit, offset });
   }
 
-  async findOne(id: string): Promise<ReviewDto> {
-    const review = await this.reviewModel.findById(id).exec();
-    if (!review) throw new NotFoundException("Review not found.");
-    return {
-      ...review.toJSON(),
-      recipeId: review.recipeId.toString(),
-      userId: review.userId.toString(),
-    };
-  }
-
   async update(id: string, userId: string, updateReviewDto: UpdateReviewDto): Promise<ReviewDto> {
-    const review = await this.reviewModel.findOne({ _id: id, userId }).exec();
-    if (!review) throw new NotFoundException("Review not found");
+    const recipe = await this.recipeModel.findOne({ "reviews._id": new Types.ObjectId(id) }).exec();
+    if (!recipe) throw new NotFoundException("Review not found.");
 
-    const currentDate = new Date().toISOString();
-    Object.assign(review, { ...updateReviewDto, updateAt: currentDate });
-    const updated = await review.save();
+    const review = recipe.reviews.find((r) => r._id?.toString() === id);
+    if (!review) throw new NotFoundException("Review not found.");
+
+    if (review.userId.toString() !== userId) throw new ForbiddenException("Not authorized");
+
+    Object.assign(review, { ...updateReviewDto, updatedAt: new Date() });
+    await recipe.save();
+
     return {
-      ...updated.toJSON(),
-      recipeId: updated.recipeId.toString(),
-      userId,
+      userId: review.userId.toString(),
+      userName: review.userName,
+      userAvatar: review.userAvatar,
+      rating: review.rating,
+      comment: review.comment,
+      createdAt: review.createdAt,
+      updatedAt: review.updatedAt,
     };
   }
 
   async remove(id: string, userId: string): Promise<string> {
-    const review = await this.reviewModel.findById(id).exec();
+    const recipe = await this.recipeModel.findOne({ "reviews._id": new Types.ObjectId(id) }).exec();
+    if (!recipe) throw new NotFoundException("Review not found.");
+
+    const review = recipe.reviews.find((r) => r._id?.toString() === id);
     if (!review) throw new NotFoundException("Review not found.");
 
-    const user = await this.userModel.findById(userId).exec();
-    if (review.userId.toString() !== userId && user?.role !== "admin")
-      throw new ForbiddenException("Not authorized");
+    if (review.userId.toString() !== userId) throw new ForbiddenException("Not authorized");
 
-    await review.deleteOne();
+    recipe.reviews = recipe.reviews.filter((r) => r._id?.toString() !== id);
+    await recipe.save();
+
     return "Review deleted successfully";
   }
 }

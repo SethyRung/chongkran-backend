@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { ApiProperty } from "@nestjs/swagger";
-import { HydratedDocument } from "mongoose";
+import { HydratedDocument, Types } from "mongoose";
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -64,6 +64,18 @@ export class User {
   tiktok?: string;
 
   @ApiProperty({ required: false })
+  @Prop({ type: [{ type: Types.ObjectId, ref: "Recipe" }], default: [] })
+  favoriteRecipes: Types.ObjectId[];
+
+  @ApiProperty({ required: false })
+  @Prop({ type: [{ type: Types.ObjectId, ref: "User" }], default: [] })
+  followers: Types.ObjectId[];
+
+  @ApiProperty({ required: false })
+  @Prop({ type: [{ type: Types.ObjectId, ref: "User" }], default: [] })
+  following: Types.ObjectId[];
+
+  @ApiProperty({ required: false })
   @Prop({ default: 0 })
   followersCount?: number;
 
@@ -82,6 +94,10 @@ export class User {
   @ApiProperty({ required: false })
   @Prop({ default: 0 })
   totalLikes?: number;
+
+  @ApiProperty({ required: false })
+  @Prop({ required: false, enum: ["pending", "approved", "rejected"] })
+  authorRequestStatus?: "pending" | "approved" | "rejected";
 
   @Prop({ default: false })
   isDeleted: boolean;

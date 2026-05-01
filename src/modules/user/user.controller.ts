@@ -13,7 +13,6 @@ import {
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { UserService } from "./user.service";
 import { UserResponseDto } from "./dto/user_response.dto";
-import { AuthorRequestResponseDto } from "./dto/author-request-response.dto";
 import {
   ApiOkResponsePaginated,
   ApiOkResponseWrapper,
@@ -35,7 +34,6 @@ export class UserController {
   @ApiBearerAuth()
   @Get()
   @Roles(Role.Admin)
-
   @ApiOkResponsePaginated({ type: UserResponseDto })
   async findAll(@Query() paginationQuery: PaginationQueryDto) {
     return this.userService.findAll(paginationQuery);
@@ -51,14 +49,13 @@ export class UserController {
   @ApiBearerAuth()
   @Get("/authors/requests")
   @Roles(Role.Admin)
-
   @ApiQuery({
     name: "status",
     type: String,
     required: false,
     enum: ["pending", "approved", "rejected"],
   })
-  @ApiOkResponsePaginated({ type: AuthorRequestResponseDto })
+  @ApiOkResponsePaginated({ type: UserResponseDto })
   async getAuthorRequests(
     @Query() paginationQuery: PaginationQueryDto,
     @Query("status") status?: "pending" | "approved" | "rejected",
@@ -84,7 +81,6 @@ export class UserController {
 
   @ApiBearerAuth()
   @Get("/authors")
-
   @ApiQuery({ name: "search", type: String, required: false })
   @ApiQuery({ name: "expertise", type: String, required: false })
   @ApiOkResponsePaginated({ type: UserResponseDto })

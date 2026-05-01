@@ -99,17 +99,26 @@ export class RecipesService {
     return new PaginatedResponseDto(data, { total, limit, offset });
   }
 
-  async create(userId: string, createRecipe: CreateRecipeDto): Promise<RecipeDto> {
+  async create(
+    userId: string,
+    userRole: string,
+    createRecipe: CreateRecipeDto,
+  ): Promise<RecipeDto> {
+    if (userRole === "user") {
+      throw new HttpException("You are not authorized to create a recipe.", HttpStatus.FORBIDDEN);
+    }
+
     const user = await this.userModel.findById(userId).exec();
     if (!user) throw new HttpException("User not found.", HttpStatus.BAD_REQUEST);
-    else if (user.role === "user")
-      throw new HttpException("You are not authorized to create a recipe.", HttpStatus.FORBIDDEN);
 
     const currentDate = new Date().toISOString();
 
     const created = await this.recipeModel.create({
       ...createRecipe,
       author: user._id,
+      authorName: `${user.firstName} ${user.lastName}`,
+      authorAvatar: user.avatar,
+      authorBio: user.bio,
       createdAt: currentDate,
       updatedAt: currentDate,
     });
@@ -143,12 +152,16 @@ export class RecipesService {
     };
   }
 
-  async update(id: string, userId: string, updateRecipe: UpdateRecipeDto): Promise<RecipeDto> {
+  async update(
+    id: string,
+    userId: string,
+    userRole: string,
+    updateRecipe: UpdateRecipeDto,
+  ): Promise<RecipeDto> {
     const recipe = await this.recipeModel.findById(id).exec();
     if (!recipe) throw new NotFoundException("Recipe not found");
 
-    const user = await this.userModel.findById(userId).exec();
-    if (recipe.author.toString() !== userId && user?.role !== "admin")
+    if (recipe.author.toString() !== userId && userRole !== "admin")
       throw new ForbiddenException("Not authorized");
 
     const currentDate = new Date().toISOString();
@@ -162,12 +175,11 @@ export class RecipesService {
     };
   }
 
-  async delete(id: string, userId: string): Promise<string> {
+  async delete(id: string, userId: string, userRole: string): Promise<string> {
     const recipe = await this.recipeModel.findById(id).exec();
     if (!recipe) throw new NotFoundException("Recipe not found.");
 
-    const user = await this.userModel.findById(userId).exec();
-    if (recipe.author.toString() !== userId && user?.role !== "admin")
+    if (recipe.author.toString() !== userId && userRole !== "admin")
       throw new ForbiddenException("Not authorized");
 
     await recipe.deleteOne();
@@ -204,7 +216,6 @@ export class RecipesService {
     const [recipes, total] = await Promise.all([
       this.recipeModel
         .find({ author: new Types.ObjectId(authorId), status: "approved" })
-        .populate("author", "firstName lastName avatar")
         .sort({ createdAt: -1 })
         .skip(offset)
         .limit(limit)
@@ -225,10 +236,7 @@ export class RecipesService {
   }
 
   async findByIdWithAuthor(id: string): Promise<RecipeDto> {
-    const recipe = await this.recipeModel
-      .findById(id)
-      .populate("author", "firstName lastName avatar bio expertise")
-      .exec();
+    const recipe = await this.recipeModel.findById(id).exec();
 
     if (!recipe) {
       throw new HttpException("Recipe not found.", HttpStatus.BAD_REQUEST);
@@ -250,7 +258,6 @@ export class RecipesService {
     const [recipes, total] = await Promise.all([
       this.recipeModel
         .find({ status: "approved" })
-        .populate("author", "firstName lastName avatar")
         .sort({ createdAt: -1 })
         .skip(offset)
         .limit(limit)
@@ -271,7 +278,6 @@ export class RecipesService {
   async getPopularRecipesByAuthor(authorId: string, limit = 5): Promise<RecipeDto[]> {
     const recipes = await this.recipeModel
       .find({ author: new Types.ObjectId(authorId), status: "approved" })
-      .populate("author", "firstName lastName avatar")
       .sort({ views: -1, likes: -1 })
       .limit(limit)
       .exec();
@@ -287,7 +293,6 @@ export class RecipesService {
   async getRecentRecipesByAuthor(authorId: string, limit = 5): Promise<RecipeDto[]> {
     const recipes = await this.recipeModel
       .find({ author: new Types.ObjectId(authorId), status: "approved" })
-      .populate("author", "firstName lastName avatar")
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();

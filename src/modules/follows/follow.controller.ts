@@ -14,6 +14,8 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
 import { FollowService } from "./follow.service";
 import { FollowDto, UnfollowDto } from "./dto/follow.dto";
 import { PaginationQueryDto } from "@/dto/pagination-query.dto";
+import { ApiOkResponsePaginated, ApiOkResponseWrapper } from "@/common/decorators";
+import { UserResponseDto } from "@/modules/user/dto/user_response.dto";
 
 @ApiTags("Follows")
 @Controller("/api/follows")
@@ -23,6 +25,7 @@ export class FollowController {
 
   @Post()
   @ApiOperation({ summary: "Follow a user" })
+  @ApiOkResponseWrapper({ type: Object })
   async follow(@Request() req, @Body() followDto: FollowDto) {
     return this.followService.follow(req.user.sub, followDto);
   }
@@ -30,13 +33,15 @@ export class FollowController {
   @Delete()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Unfollow a user" })
+  @ApiOkResponseWrapper({ type: String })
   async unfollow(@Request() req, @Body() unfollowDto: UnfollowDto) {
     await this.followService.unfollow(req.user.sub, unfollowDto);
-    return { message: "Successfully unfollowed user" };
+    return "Successfully unfollowed user";
   }
 
   @Get("followers/:userId")
   @ApiOperation({ summary: "Get user's followers" })
+  @ApiOkResponsePaginated({ type: UserResponseDto })
   async getFollowers(
     @Param("userId") userId: string,
     @Query() paginationQuery: PaginationQueryDto,
@@ -46,6 +51,7 @@ export class FollowController {
 
   @Get("following/:userId")
   @ApiOperation({ summary: "Get users that user is following" })
+  @ApiOkResponsePaginated({ type: UserResponseDto })
   async getFollowing(
     @Param("userId") userId: string,
     @Query() paginationQuery: PaginationQueryDto,
@@ -55,6 +61,7 @@ export class FollowController {
 
   @Get("is-following/:followingId")
   @ApiOperation({ summary: "Check if current user is following another user" })
+  @ApiOkResponseWrapper({ type: Object })
   async isFollowing(@Request() req, @Param("followingId") followingId: string) {
     const isFollowing = await this.followService.isFollowing(req.user.sub, followingId);
     return { isFollowing };
@@ -62,6 +69,7 @@ export class FollowController {
 
   @Get("stats/:userId")
   @ApiOperation({ summary: "Get user's follow statistics" })
+  @ApiOkResponseWrapper({ type: Object })
   async getFollowStats(@Param("userId") userId: string) {
     return this.followService.getFollowStats(userId);
   }

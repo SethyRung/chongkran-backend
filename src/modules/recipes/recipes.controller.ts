@@ -8,11 +8,13 @@ import { Roles } from "@/common/decorators/roles.decorator";
 import {
   ApiOkResponsePaginated,
   ApiOkResponseWrapper,
+  GetCurrentUser,
   GetCurrentUserId,
   Public,
 } from "@/common/decorators";
 import { UpdateRecipeDto } from "./dto/update_recipe.dto";
 import { PaginationQueryDto } from "@/dto/pagination-query.dto";
+import { UserClaim } from "@/modules/user/dto/user_claim.dto";
 
 @ApiTags("Recipes")
 @Controller("/api/recipes")
@@ -61,8 +63,8 @@ export class RecipesController {
   @ApiBearerAuth()
   @Post()
   @ApiOkResponseWrapper({ type: RecipeDto })
-  async create(@GetCurrentUserId() userId: string, @Body() createRecipe: CreateRecipeDto) {
-    return this.recipesService.create(userId, createRecipe);
+  async create(@GetCurrentUser() user: UserClaim, @Body() createRecipe: CreateRecipeDto) {
+    return this.recipesService.create(user.sub, user.role, createRecipe);
   }
 
   @ApiBearerAuth()
@@ -80,17 +82,17 @@ export class RecipesController {
   @ApiOkResponseWrapper({ type: RecipeDto })
   async update(
     @Param("id") id: string,
-    @GetCurrentUserId() userId,
+    @GetCurrentUser() user: UserClaim,
     @Body() updateRecipe: UpdateRecipeDto,
   ) {
-    return this.recipesService.update(userId, id, updateRecipe);
+    return this.recipesService.update(id, user.sub, user.role, updateRecipe);
   }
 
   @ApiBearerAuth()
   @Delete("/:id")
   @ApiOkResponseWrapper({ type: String })
-  async delete(@Param("id") id: string, @GetCurrentUserId() userId: string) {
-    return this.recipesService.delete(id, userId);
+  async delete(@Param("id") id: string, @GetCurrentUser() user: UserClaim) {
+    return this.recipesService.delete(id, user.sub, user.role);
   }
 
   @ApiBearerAuth()

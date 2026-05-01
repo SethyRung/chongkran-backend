@@ -1,21 +1,22 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsMongoId, IsNotEmpty, IsString, IsNumber, Min } from "class-validator";
+import { IsMongoId, IsNotEmpty, IsString, IsNumber, Min, IsOptional } from "class-validator";
 
 export class ReviewDto {
   @ApiProperty()
   @IsMongoId()
-  id: string;
-
-  @ApiProperty()
-  @IsMongoId()
-  @IsNotEmpty()
-  recipeId: string;
-
-  @ApiProperty()
-  @IsMongoId()
   @IsNotEmpty()
   userId: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  userName: string;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  userAvatar?: string;
 
   @ApiProperty()
   @IsNumber()

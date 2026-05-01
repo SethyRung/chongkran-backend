@@ -1,11 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model, Types } from "mongoose";
+import { Model } from "mongoose";
 import { User, UserDocument } from "@/db/schema/user.schema";
 import { UserResponseDto } from "./dto/user_response.dto";
 import { plainToInstance } from "class-transformer";
-import { AuthorRequesDocument, AuthorRequest } from "@/db/schema/author_request.schema";
-import { AuthorRequestResponseDto } from "./dto/author-request-response.dto";
 import { UpdateUserDto } from "./dto/update_user.dto";
 import { PaginationQueryDto } from "@/dto/pagination-query.dto";
 import { PaginatedResponseDto } from "@/dto/paginated-response.dto";
@@ -15,8 +13,6 @@ import { Recipe, RecipeDocument } from "@/db/schema/recipe.schema";
 export class UserService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
-    @InjectModel(AuthorRequest.name)
-    private authorRequestModel: Model<AuthorRequesDocument>,
     @InjectModel(Recipe.name) private recipeModel: Model<RecipeDocument>,
   ) {}
   async findAll(
@@ -75,85 +71,73 @@ export class UserService {
   }
 
   async becomeAuthor(id: string): Promise<string> {
-    const existing = await this.authorRequestModel
-      .findOne({ userId: new Types.ObjectId(id) })
-      .exec();
-    if (!existing) {
-      await this.authorRequestModel.create({
-        userId: new Types.ObjectId(id),
-        status: "pending",
-      });
+    const user = await this.userModel.findById(id).exec();
+    if (!user) {
+      throw new HttpException("User not found.", HttpStatus.BAD_REQUEST);
     }
 
+    if (user.authorRequestStatus) {
+      return "Waiting for approval";
+    }
+
+    await this.userModel.updateOne({ _id: id }, { $set: { authorRequestStatus: "pending" } });
     return "Waiting for approval";
   }
 
   async getAuthorRequests(
     paginationQuery: PaginationQueryDto,
     status?: "pending" | "approved" | "rejected",
-  ): Promise<PaginatedResponseDto<AuthorRequestResponseDto>> {
+  ): Promise<PaginatedResponseDto<UserResponseDto>> {
     const { offset = 0, limit = 10 } = paginationQuery;
 
-    const query: any = {};
-    if (status) query.status = status;
+    const query: any = { authorRequestStatus: { $exists: true } };
+    if (status) query.authorRequestStatus = status;
 
-    const requests = await this.authorRequestModel
+    const users = await this.userModel
       .find(query)
-      .populate("userId", "_id firstName lastName email avatar")
       .skip(offset)
       .limit(limit)
       .sort({ _id: -1 })
       .exec();
 
-    const total = await this.authorRequestModel.countDocuments(query).exec();
+    const total = await this.userModel.countDocuments(query).exec();
 
-    const data = requests
-      .filter((req) => req.userId)
-      .map((req) => {
-        const user = req.userId as any;
-        return plainToInstance(
-          AuthorRequestResponseDto,
-          {
-            ...req.toJSON(),
-            user: {
-              ...user.toJSON(),
-            },
-          },
-          { excludeExtraneousValues: true },
-        );
-      });
+    const data: UserResponseDto[] = plainToInstance(UserResponseDto, users, {
+      excludeExtraneousValues: true,
+    });
 
     return new PaginatedResponseDto(data, { total, limit, offset });
   }
 
-  async approveAuthorRequest(requestId: string): Promise<string> {
-    const request = await this.authorRequestModel.findById(requestId).exec();
-    if (!request) {
-      throw new HttpException("Author request not found.", HttpStatus.BAD_REQUEST);
+  async approveAuthorRequest(userId: string): Promise<string> {
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) {
+      throw new HttpException("User not found.", HttpStatus.BAD_REQUEST);
     }
 
-    if (request.status === "approved") {
+    if (user.authorRequestStatus === "approved") {
       throw new HttpException("This request has already been approved.", HttpStatus.BAD_REQUEST);
     }
 
-    await this.authorRequestModel.updateOne({ _id: requestId }, { $set: { status: "approved" } });
-
-    await this.userModel.updateOne({ _id: request.userId }, { $set: { role: "author" } });
+    await this.userModel.updateOne(
+      { _id: userId },
+      { $set: { authorRequestStatus: "approved", role: "author" } },
+    );
 
     return "Author request approved successfully.";
   }
 
-  async rejectAuthorRequest(requestId: string): Promise<string> {
-    const request = await this.authorRequestModel.findById(requestId).exec();
-    if (!request) {
-      throw new HttpException("Author request not found.", HttpStatus.BAD_REQUEST);
+  async rejectAuthorRequest(userId: string): Promise<string> {
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) {
+      throw new HttpException("User not found.", HttpStatus.BAD_REQUEST);
     }
 
-    if (request.status === "rejected") {
+    if (user.authorRequestStatus === "rejected") {
       throw new HttpException("This request has already been rejected.", HttpStatus.BAD_REQUEST);
     }
 
-    await this.authorRequestModel.updateOne({ _id: requestId }, { $set: { status: "rejected" } });
+    await this.userModel.updateOne({ _id: userId }, { $set: { authorRequestStatus: "rejected" } });
 
     return "Author request rejected successfully.";
   }
@@ -220,43 +204,15 @@ export class UserService {
       throw new HttpException("Author not found", HttpStatus.NOT_FOUND);
     }
 
-    // Get recipe statistics
-    const recipeStats = await this.recipeModel.aggregate([
-      { $match: { author: new Types.ObjectId(authorId) } },
-      {
-        $group: {
-          _id: null,
-          totalRecipes: { $sum: 1 },
-          totalViews: { $sum: "$views" },
-          totalLikes: { $sum: { $size: "$likes" } },
-          averageDifficulty: {
-            $avg: {
-              $cond: [
-                { $eq: ["$difficulty", "easy"] },
-                1,
-                { $cond: [{ $eq: ["$difficulty", "medium"] }, 2, 3] },
-              ],
-            },
-          },
-        },
-      },
-    ]);
-
-    const stats = recipeStats[0] || {
-      totalRecipes: 0,
-      totalViews: 0,
-      totalLikes: 0,
-      averageDifficulty: 0,
-    };
+    const recipeCount = await this.recipeModel.countDocuments({ author: authorId });
 
     return {
       authorId,
       followersCount: author.followersCount || 0,
       followingCount: author.followingCount || 0,
-      recipesCount: stats.totalRecipes,
-      totalViews: stats.totalViews,
-      totalLikes: stats.totalLikes,
-      averageDifficulty: Math.round(stats.averageDifficulty * 10) / 10,
+      recipesCount: recipeCount,
+      totalViews: author.totalViews || 0,
+      totalLikes: author.totalLikes || 0,
     };
   }
 
@@ -349,24 +305,9 @@ export class UserService {
       author: authorId,
     });
 
-    const recipeStats = await this.recipeModel.aggregate([
-      { $match: { author: new Types.ObjectId(authorId) } },
-      {
-        $group: {
-          _id: null,
-          totalViews: { $sum: "$views" },
-          totalLikes: { $sum: { $size: "$likes" } },
-        },
-      },
-    ]);
-
-    const stats = recipeStats[0] || { totalViews: 0, totalLikes: 0 };
-
     await this.userModel.findByIdAndUpdate(authorId, {
       $set: {
         recipesCount: recipeCount,
-        totalViews: stats.totalViews,
-        totalLikes: stats.totalLikes,
       },
     });
   }

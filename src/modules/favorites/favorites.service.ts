@@ -1,66 +1,45 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { FavoriteDto } from "./dto/favorite.dto";
 import { InjectModel } from "@nestjs/mongoose";
-import { Favorite, FavoriteDocument } from "@/db/schema/favorite.schema";
-import { Model } from "mongoose";
-import { PaginatedResponseDto } from "@/dto/paginated-response.dto";
-import { PaginationQueryDto } from "@/dto/pagination-query.dto";
+import { User, UserDocument } from "@/db/schema/user.schema";
+import { Model, Types } from "mongoose";
 
 @Injectable()
 export class FavoritesService {
-  constructor(@InjectModel(Favorite.name) private favoriteModel: Model<FavoriteDocument>) {}
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  async create(recipeId: string, userId: string): Promise<FavoriteDto> {
-    const existingFavorite = await this.favoriteModel.findOne({ recipeId, userId }).exec();
+  async addFavorite(recipeId: string, userId: string): Promise<string> {
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) throw new NotFoundException("User not found");
 
-    if (existingFavorite) {
-      return {
-        ...existingFavorite.toJSON(),
-        recipeId,
-        userId,
-      } as unknown as FavoriteDto;
+    const recipeObjectId = new Types.ObjectId(recipeId);
+    if (user.favoriteRecipes.some((id) => id.equals(recipeObjectId))) {
+      return "Recipe is already in favorites";
     }
 
-    const createdAt = new Date().toISOString();
-    const newFavorite = await this.favoriteModel.create({
-      recipeId,
-      userId,
-      createdAt,
+    await this.userModel.findByIdAndUpdate(userId, {
+      $addToSet: { favoriteRecipes: recipeObjectId },
     });
-
-    return {
-      ...newFavorite.toJSON(),
-      recipeId,
-      userId,
-    } as unknown as FavoriteDto;
+    return "Recipe added to favorites";
   }
 
-  async findAll(
-    recipeId: string,
-    userId: string,
-    paginationQuery: PaginationQueryDto,
-  ): Promise<PaginatedResponseDto<FavoriteDto>> {
-    const { offset = 0, limit = 10 } = paginationQuery;
+  async removeFavorite(recipeId: string, userId: string): Promise<string> {
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) throw new NotFoundException("User not found");
 
-    const [favorites, total] = await Promise.all([
-      this.favoriteModel.find({ recipeId, userId }).skip(offset).limit(limit).exec(),
-      this.favoriteModel.countDocuments({ recipeId, userId }).exec(),
-    ]);
-
-    const data = favorites.map((favorite) => ({
-      ...favorite.toJSON(),
-      recipeId: favorite.recipeId.toString(),
-      userId: favorite.userId.toString(),
-    })) as unknown as FavoriteDto[];
-
-    return new PaginatedResponseDto(data, { total, limit, offset });
+    const recipeObjectId = new Types.ObjectId(recipeId);
+    await this.userModel.findByIdAndUpdate(userId, { $pull: { favoriteRecipes: recipeObjectId } });
+    return "Recipe removed from favorites";
   }
 
-  async remove(recipeId: string, userId: string): Promise<string> {
-    const favorite = await this.favoriteModel.findOne({ recipeId, userId }).exec();
-    if (!favorite) throw new NotFoundException("Favorite not found");
+  async getFavoriteRecipes(userId: string): Promise<string[]> {
+    const user = await this.userModel.findById(userId).select("favoriteRecipes").exec();
+    if (!user) throw new NotFoundException("User not found");
+    return user.favoriteRecipes.map((id) => id.toString());
+  }
 
-    await favorite.deleteOne();
-    return "Favorite deleted successfully";
+  async isFavorite(recipeId: string, userId: string): Promise<boolean> {
+    const user = await this.userModel.findById(userId).select("favoriteRecipes").exec();
+    if (!user) return false;
+    return user.favoriteRecipes.some((id) => id.equals(new Types.ObjectId(recipeId)));
   }
 }

@@ -3,7 +3,7 @@ import { ReviewsService } from "./reviews.service";
 import { ReviewDto } from "./dto/review.dto";
 import { CreateReviewDto } from "./dto/create-review.dto";
 import { UpdateReviewDto } from "./dto/update-review.dto";
-import { ApiBearerAuth, ApiQuery } from "@nestjs/swagger";
+import { ApiBearerAuth } from "@nestjs/swagger";
 import {
   ApiOkResponsePaginated,
   ApiOkResponseWrapper,
@@ -28,17 +28,9 @@ export class ReviewsController {
 
   @ApiBearerAuth()
   @Get("/recipe/:recipeId")
-
   @ApiOkResponsePaginated({ type: ReviewDto })
   async findAll(@Param("recipeId") recipeId: string, @Query() paginationQuery: PaginationQueryDto) {
     return this.reviewsService.findAll(recipeId, paginationQuery);
-  }
-
-  @ApiBearerAuth()
-  @Get(":id")
-  @ApiOkResponseWrapper({ type: ReviewDto })
-  async findOne(@Param("id") id: string) {
-    return this.reviewsService.findOne(id);
   }
 
   @ApiBearerAuth()
