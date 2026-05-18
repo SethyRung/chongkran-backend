@@ -3,6 +3,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { User, UserDocument } from "@/db/schema/user.schema";
 import { UserResponseDto } from "./dto/user_response.dto";
+import { AuthorRequestResponseDto } from "./dto/author-request-response.dto";
 import { plainToInstance } from "class-transformer";
 import { UpdateUserDto } from "./dto/update_user.dto";
 import { PaginationQueryDto } from "@/dto/pagination-query.dto";
@@ -87,7 +88,7 @@ export class UserService {
   async getAuthorRequests(
     paginationQuery: PaginationQueryDto,
     status?: "pending" | "approved" | "rejected",
-  ): Promise<PaginatedResponseDto<UserResponseDto>> {
+  ): Promise<PaginatedResponseDto<AuthorRequestResponseDto>> {
     const { offset = 0, limit = 10 } = paginationQuery;
 
     const query: any = { authorRequestStatus: { $exists: true } };
@@ -102,8 +103,18 @@ export class UserService {
 
     const total = await this.userModel.countDocuments(query).exec();
 
-    const data: UserResponseDto[] = plainToInstance(UserResponseDto, users, {
-      excludeExtraneousValues: true,
+    const data: AuthorRequestResponseDto[] = users.map((user) => {
+      const dto = new AuthorRequestResponseDto();
+      dto.id = user.id;
+      dto.user = {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        avatar: user.avatar,
+      };
+      dto.status = user.authorRequestStatus!;
+      return dto;
     });
 
     return new PaginatedResponseDto(data, { total, limit, offset });

@@ -13,6 +13,7 @@ import {
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { UserService } from "./user.service";
 import { UserResponseDto } from "./dto/user_response.dto";
+import { AuthorRequestResponseDto } from "./dto/author-request-response.dto";
 import {
   ApiOkResponsePaginated,
   ApiOkResponseWrapper,
@@ -55,7 +56,7 @@ export class UserController {
     required: false,
     enum: ["pending", "approved", "rejected"],
   })
-  @ApiOkResponsePaginated({ type: UserResponseDto })
+  @ApiOkResponsePaginated({ type: AuthorRequestResponseDto })
   async getAuthorRequests(
     @Query() paginationQuery: PaginationQueryDto,
     @Query("status") status?: "pending" | "approved" | "rejected",
