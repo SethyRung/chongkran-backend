@@ -26,7 +26,7 @@ export class RecipesService {
     const { offset = 0, limit = 10 } = paginationQuery;
 
     const [recipes, total] = await Promise.all([
-      this.recipeModel.find().skip(offset).limit(limit).exec(),
+      this.recipeModel.find().sort({ createdAt: -1 }).skip(offset).limit(limit).exec(),
       this.recipeModel.countDocuments().exec(),
     ]);
 

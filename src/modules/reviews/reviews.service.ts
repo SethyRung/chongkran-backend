@@ -77,6 +77,63 @@ export class ReviewsService {
     return new PaginatedResponseDto(data, { total, limit, offset });
   }
 
+  async findAllGlobal(
+    paginationQuery: PaginationQueryDto,
+    search?: string,
+    ratingMin?: number,
+    ratingMax?: number,
+  ): Promise<PaginatedResponseDto<any>> {
+    const { offset = 0, limit = 10 } = paginationQuery;
+
+    const pipeline: any[] = [{ $unwind: "$reviews" }];
+
+    if (search) {
+      const regex = { $regex: search, $options: "i" };
+      pipeline.push({
+        $match: {
+          $or: [{ "reviews.comment": regex }, { title: regex }],
+        },
+      });
+    }
+
+    if (ratingMin !== undefined) {
+      pipeline.push({ $match: { "reviews.rating": { $gte: ratingMin } } });
+    }
+
+    if (ratingMax !== undefined) {
+      pipeline.push({ $match: { "reviews.rating": { $lte: ratingMax } } });
+    }
+
+    pipeline.push({ $sort: { "reviews.createdAt": -1 } });
+
+    const countPipeline = [...pipeline, { $count: "total" }];
+    const countResult = await this.recipeModel.aggregate(countPipeline).exec();
+    const total = countResult[0]?.total ?? 0;
+
+    pipeline.push({ $skip: offset }, { $limit: limit });
+
+    pipeline.push({
+      $project: {
+        _id: 0,
+        id: "$reviews._id",
+        userId: { $toString: "$reviews.userId" },
+        userName: "$reviews.userName",
+        userAvatar: "$reviews.userAvatar",
+        rating: "$reviews.rating",
+        comment: "$reviews.comment",
+        createdAt: "$reviews.createdAt",
+        updatedAt: "$reviews.updatedAt",
+        recipeId: { $toString: "$_id" },
+        recipeTitle: "$title",
+        recipeImage: "$image",
+      },
+    });
+
+    const results = await this.recipeModel.aggregate(pipeline).exec();
+
+    return new PaginatedResponseDto(results, { total, limit, offset });
+  }
+
   async update(id: string, userId: string, updateReviewDto: UpdateReviewDto): Promise<ReviewDto> {
     const recipe = await this.recipeModel.findOne({ "reviews._id": new Types.ObjectId(id) }).exec();
     if (!recipe) throw new NotFoundException("Review not found.");

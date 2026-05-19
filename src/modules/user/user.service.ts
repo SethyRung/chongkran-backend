@@ -25,6 +25,7 @@ export class UserService {
       .find({
         $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }],
       })
+      .sort({ _id: -1 })
       .skip(offset)
       .limit(limit)
       .exec();

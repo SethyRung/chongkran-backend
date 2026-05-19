@@ -3,17 +3,40 @@ import { ReviewsService } from "./reviews.service";
 import { ReviewDto } from "./dto/review.dto";
 import { CreateReviewDto } from "./dto/create-review.dto";
 import { UpdateReviewDto } from "./dto/update-review.dto";
-import { ApiBearerAuth } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiQuery } from "@nestjs/swagger";
 import {
   ApiOkResponsePaginated,
   ApiOkResponseWrapper,
   GetCurrentUserId,
 } from "@/common/decorators";
+import { Roles } from "@/common/decorators/roles.decorator";
+import { Role } from "@/common/enums/role.enum";
 import { PaginationQueryDto } from "@/dto/pagination-query.dto";
 
 @Controller("/api/reviews")
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
+
+  @ApiBearerAuth()
+  @Get()
+  @Roles(Role.Admin)
+  @ApiQuery({ name: "search", type: String, required: false })
+  @ApiQuery({ name: "ratingMin", type: Number, required: false })
+  @ApiQuery({ name: "ratingMax", type: Number, required: false })
+  @ApiOkResponsePaginated({ type: ReviewDto })
+  async findAllGlobal(
+    @Query() paginationQuery: PaginationQueryDto,
+    @Query("search") search?: string,
+    @Query("ratingMin") ratingMin?: number,
+    @Query("ratingMax") ratingMax?: number,
+  ) {
+    return this.reviewsService.findAllGlobal(
+      paginationQuery,
+      search,
+      ratingMin ? Number(ratingMin) : undefined,
+      ratingMax ? Number(ratingMax) : undefined,
+    );
+  }
 
   @ApiBearerAuth()
   @Post("/:recipeId")
