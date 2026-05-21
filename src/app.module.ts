@@ -19,6 +19,7 @@ import { MealPlansModule } from "@/modules/meal-plans/meal-plans.module";
 import { ShoppingListsModule } from "@/modules/shopping-lists/shopping-lists.module";
 import { UploadModule } from "@/modules/upload/upload.module";
 import { FollowModule } from "@/modules/follows/follow.module";
+import { AdminModule } from "@/modules/admin/admin.module";
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { FollowModule } from "@/modules/follows/follow.module";
     ShoppingListsModule,
     UploadModule,
     FollowModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [
